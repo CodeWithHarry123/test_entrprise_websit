@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html class="light" lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>Reports - Khatu Shyam Enterprises</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Work+Sans:wght@400;500;600;700;800;900&amp;display=swap"
+        rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet" />
+    <link href="responsive.css" rel="stylesheet"/>
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+    <!-- SheetJS for Excel Export -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <!-- Firebase Init -->
+    <script src="firebase-init.js"></script>
+    <script>
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#1A3A6D",
+                        "secondary": "#FFC107",
+                        "background-light": "#F8F9FA",
+                        "background-dark": "#101922",
+                        "text-light": "#333333",
+                        "text-dark": "#F8F9FA"
+                    },
+                    fontFamily: {
+                        "display": ["Work Sans", "sans-serif"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.5rem",
+                        "lg": "0.75rem",
+                        "xl": "1rem",
+                        "full": "9999px"
+                    },
+                },
+            },
+        };
+    </script>
+
+</head>
+
+<body class="bg-background-light dark:bg-background-dark font-display text-text-light dark:text-text-dark">
+    <div class="relative flex min-h-screen w-full flex-col group/design-root overflow-x-hidden">
+        <div class="flex h-full grow">
+            <!-- Sidebar -->
+            <div id="sidebar"
+                class="fixed top-0 left-0 h-full w-64 bg-white dark:bg-background-dark border-r border-gray-200 dark:border-gray-700 z-20 transform -translate-x-full transition-transform duration-300 ease-in-out lg:translate-x-0">
+                <div class="flex h-full flex-col justify-between p-4">
+                    <div class="flex flex-col gap-8">
+                        <div class="flex items-center gap-3">
+                            <div class="bg-center bg-no-repeat aspect-square bg-cover rounded-full size-12"
+                                data-alt="Khatu Shyam Enterprises logo"
+                                style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuAOHbruo0jprzAtar_x2pUsiES3Q5D_dxlYhqlJcZL979Dk50YDLBht7ZtUB6iOQLpaFPQIzeH5OH3xuyH49Ot1_PnTvlvDPs7BPHYr374OXEpsgT6GaxlfvrGFYL-3vMlU5FBhwt8Hwo-9UOXhOIVE_S2fYnZZu4NNX9N5ZSC1fl6JlTPPdStldsWf5C8Rqsc1SxIDDDjyWuTWrTVhK_SqCY7uOQUE1iUvb9rWBtT-QtIBp4zrMGPQosJoByWLT3oEtJriiC0F9yQ");'>
+                            </div>
+                            <div class="flex flex-col">
+                                <h1 class="text-lg font-bold text-primary dark:text-white">Khatu Shyam</h1>
+                                <p class="text-sm text-gray-500 dark:text-gray-400">Admin Panel</p>
+                            </div>
+                        </div>
+                        <div class="flex flex-col gap-2">
+                            <a class="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-primary/10 dark:hover:bg-primary/20" href="admin_dashboard.html">
+                                <span class="material-symbols-outlined text-gray-700 dark:text-gray-300">dashboard</span>
+                                <p class="text-sm font-medium text-gray-700 dark:text-gray-300">Dashboard</p>
+                            </a>
+                            <a class="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-primary/10 dark:hover:bg-primary/20" href="admin.html">
+                                <span class="material-symbols-outlined text-gray-700 dark:text-gray-300">calendar_month</span>
+                                <p class="text-sm font-medium text-gray-700 dark:text-gray-300">Bookings</p>
+                            </a>
+                            <a class="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-primary/10 dark:hover:bg-primary/20" href="users.html">
+                                <span class="material-symbols-outlined text-gray-700 dark:text-gray-300">group</span>
+                                <p class="text-sm font-medium text-gray-700 dark:text-gray-300">Users</p>
+                            </a>
+                            <a class="flex items-center gap-3 px-3 py-2 rounded-lg bg-primary/10 dark:bg-primary/20" href="reports.html">
+                                <span class="material-symbols-outlined text-primary dark:text-secondary">assessment</span>
+                                <p class="text-sm font-medium text-primary dark:text-secondary">Reports</p>
+                            </a>
+                            <a class="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-primary/10 dark:hover:bg-primary/20" href="settings.html">
+                                <span class="material-symbols-outlined text-gray-700 dark:text-gray-300">settings</span>
+                                <p class="text-sm font-medium text-gray-700 dark:text-gray-300">Settings</p>
+                            </a>
+                        </div>
+                    </div>
+                    <div class="flex flex-col gap-1">
+                        <a id="logout-button"
+                            class="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-primary/10 dark:hover:bg-primary/20"
+                            href="#">
+                            <span class="material-symbols-outlined text-gray-700 dark:text-gray-300">logout</span>
+                            <p class="text-sm font-medium text-gray-700 dark:text-gray-300">Logout</p>
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Main Content -->
+            <main class="flex-1 lg:ml-64 p-4 sm:p-6 md:p-8 transition-all duration-300 ease-in-out">
+                <div class="max-w-7xl mx-auto">
+                    <!-- Header -->
+                    <div class="flex flex-col md:flex-row md:justify-between md:items-center gap-4 mb-6">
+                        <div class="flex items-center gap-4">
+                             <button id="sidebar-toggle" class="lg:hidden p-2 rounded-md bg-gray-100 dark:bg-gray-800">
+                                <span class="material-symbols-outlined">menu</span>
+                            </button>
+                            <h1 class="text-2xl sm:text-3xl md:text-4xl font-black tracking-tighter text-text-light dark:text-text-dark">
+                                Reports</h1>
+                        </div>
+                    </div>
+
+                    <!-- Filters -->
+                    <div class="bg-white dark:bg-background-dark p-6 rounded-xl shadow-md mb-6">
+                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                            <div>
+                                <label for="report-type" class="text-sm font-medium">Report Type</label>
+                                <select id="report-type" class="w-full mt-1 rounded-lg border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 focus:border-primary focus:ring-primary">
+                                    <option value="bookings">Bookings</option>
+                                    <option value="users">Users</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label for="date-from" class="text-sm font-medium">From</label>
+                                <input type="date" id="date-from" class="w-full mt-1 rounded-lg border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 focus:border-primary focus:ring-primary">
+                            </div>
+                            <div>
+                                <label for="date-to" class="text-sm font-medium">To</label>
+                                <input type="date" id="date-to" class="w-full mt-1 rounded-lg border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 focus:border-primary focus:ring-primary">
+                            </div>
+                            <div class="flex items-end">
+                                <button id="generate-report-button" class="w-full flex items-center justify-center gap-2 h-10 px-4 rounded-lg bg-primary text-white text-sm font-bold tracking-wide transition-colors hover:bg-primary/90">
+                                    Generate Report
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Report Display -->
+                    <div id="report-output" class="bg-white dark:bg-background-dark p-6 rounded-xl shadow-md">
+                        <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-4">
+                            <h2 id="report-title" class="text-lg font-bold">Bookings Report</h2>
+                            <button id="export-excel-button" class="flex items-center justify-center gap-2 h-10 px-4 rounded-lg bg-green-600 text-white text-sm font-bold tracking-wide transition-colors hover:bg-green-700 w-full sm:w-auto">
+                                <span class="material-symbols-outlined text-xl">download</span>
+                                <span>Export to Excel</span>
+                            </button>
+                        </div>
+                        <div id="report-table-container" class="overflow-x-auto">
+                            <!-- Report table will be injected here -->
+                        </div>
+                    </div>
+
+                </div>
+            </main>
+        </div>
+    </div>
+    <script>
+        // --- AUTHENTICATION ---
+        auth.onAuthStateChanged(user => {
+            if (user) {
+                // User is logged in, now check for admin status in Firestore.
+                db.collection('users').doc(user.uid).get()
+                    .then((doc) => {
+                        if (doc.exists && doc.data().khatu_website_admin) {
+                            // User is an admin, allow access and load data.
+                            console.log("Admin user authenticated successfully.");
+                            initializeReportPage();
+                        } else {
+                            // User is not an admin, redirect them.
+                            console.log("Access Denied: User is not an admin.");
+                            alert("Access Denied. You do not have permission to view this page.");
+                            window.location.href = 'dashboard.html'; // Redirect to dashboard
+                        }
+                    })
+                    .catch((error) => {
+                        console.error("Error getting user document:", error);
+                        window.location.href = 'login.html'; // Redirect on error
+                    });
+            } else {
+                // No user is signed in, redirect to login.
+                console.log("No user logged in. Redirecting to login.");
+                window.location.href = 'login.html';
+            }
+        });
+
+        // --- UI ELEMENTS ---
+        const logoutButton = document.getElementById('logout-button');
+        const sidebar = document.getElementById('sidebar');
+        const sidebarToggle = document.getElementById('sidebar-toggle');
+        const generateReportButton = document.getElementById('generate-report-button');
+        const exportExcelButton = document.getElementById('export-excel-button');
+        const reportTypeSelect = document.getElementById('report-type');
+        const dateFromInput = document.getElementById('date-from');
+        const dateToInput = document.getElementById('date-to');
+        const reportTitle = document.getElementById('report-title');
+        const reportTableContainer = document.getElementById('report-table-container');
+
+        let currentReportData = [];
+
+        // --- EVENT LISTENERS ---
+        sidebarToggle.addEventListener('click', () => {
+            sidebar.classList.toggle('-translate-x-full');
+        });
+
+        logoutButton.addEventListener('click', (e) => {
+            e.preventDefault();
+            auth.signOut().then(() => {
+                window.location.href = 'index.html';
+            });
+        });
+
+        generateReportButton.addEventListener('click', generateReport);
+        exportExcelButton.addEventListener('click', exportToExcel);
+
+        // Dark Mode Check
+        if (localStorage.getItem('color-theme') === 'dark') {
+            document.documentElement.classList.add('dark');
+        } else {
+            document.documentElement.classList.remove('dark');
+        }
+
+        // --- FUNCTIONS ---
+        function initializeReportPage() {
+            // Set default dates
+            const today = new Date();
+            const firstDayOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+            dateToInput.valueAsDate = today;
+            dateFromInput.valueAsDate = firstDayOfMonth;
+
+            // Generate initial report
+            generateReport();
+        }
+
+        function generateReport() {
+            const reportType = reportTypeSelect.value;
+            const fromDate = dateFromInput.value ? new Date(dateFromInput.value) : null;
+            const toDate = dateToInput.value ? new Date(dateToInput.value) : null;
+            if (toDate) toDate.setHours(23, 59, 59, 999); // Include the whole day
+
+            reportTitle.textContent = `${reportType.charAt(0).toUpperCase() + reportType.slice(1)} Report`;
+
+            if (reportType === 'bookings') {
+                generateBookingsReport(fromDate, toDate);
+            } else if (reportType === 'users') {
+                generateUsersReport(fromDate, toDate);
+            }
+        }
+
+        function generateBookingsReport(fromDate, toDate) {
+            let query = db.collection('bookings');
+            if (fromDate) {
+                query = query.where('bookingDate', '>=', fromDate);
+            }
+            if (toDate) {
+                query = query.where('bookingDate', '<=', toDate);
+            }
+            query.orderBy('bookingDate', 'desc').get().then(snapshot => {
+                currentReportData = [];
+                let tableHtml = `
+                    <table class="w-full text-left responsive-table">
+                        <thead class="bg-gray-50 dark:bg-gray-800">
+                            <tr>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Booking ID</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Date</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Customer</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">From</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">To</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Status</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
+                `;
+                if (snapshot.empty) {
+                    tableHtml += '<tr><td colspan="6" class="text-center py-10">No bookings found for the selected period.</td></tr>';
+                } else {
+                    snapshot.forEach(doc => {
+                        const booking = { id: doc.id, ...doc.data() };
+                        currentReportData.push(booking);
+                        const bookingDate = booking.bookingDate ? booking.bookingDate.toDate().toLocaleDateString() : 'N/A';
+                        tableHtml += `
+                            <tr class="hover:bg-gray-50 dark:hover:bg-gray-800">
+                                <td data-label="Booking ID" class="px-6 py-4 whitespace-nowrap text-sm">${booking.bookingId}</td>
+                                <td data-label="Date" class="px-6 py-4 whitespace-nowrap text-sm">${bookingDate}</td>
+                                <td data-label="Customer" class="px-6 py-4 whitespace-nowrap text-sm">${booking.senderDetails.name}</td>
+                                <td data-label="From" class="px-6 py-4 whitespace-nowrap text-sm">${booking.senderDetails.pincode}</td>
+                                <td data-label="To" class="px-6 py-4 whitespace-nowrap text-sm">${booking.receiverDetails.pincode}</td>
+                                <td data-label="Status" class="px-6 py-4 whitespace-nowrap text-sm">${booking.status}</td>
+                            </tr>
+                        `;
+                    });
+                }
+                tableHtml += '</tbody></table>';
+                reportTableContainer.innerHTML = tableHtml;
+            }).catch(error => console.error("Error fetching bookings report: ", error));
+        }
+
+        function generateUsersReport(fromDate, toDate) {
+            let query = db.collection('users');
+            if (fromDate) {
+                query = query.where('createdAt', '>=', fromDate);
+            }
+            if (toDate) {
+                query = query.where('createdAt', '<=', toDate);
+            }
+            query.orderBy('createdAt', 'desc').get().then(snapshot => {
+                currentReportData = [];
+                let tableHtml = `
+                    <table class="w-full text-left responsive-table">
+                        <thead class="bg-gray-50 dark:bg-gray-800">
+                            <tr>
+                                <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">User Info</th>
+                                <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Registration Date</th>
+                                <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Role</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
+                `;
+                if (snapshot.empty) {
+                    tableHtml += '<tr><td colspan="3" class="text-center py-10">No users found for the selected period.</td></tr>';
+                } else {
+                    snapshot.forEach(doc => {
+                        const user = doc.data();
+                        currentReportData.push(user);
+                        const registrationDate = user.createdAt ? user.createdAt.toDate().toLocaleDateString() : 'N/A';
+                        const isAdmin = user.isAdmin === true;
+                        tableHtml += `
+                            <tr class="hover:bg-gray-50 dark:hover:bg-gray-800">
+                                <td data-label="User Info" class="px-6 py-4 whitespace-nowrap">
+                                    <div class="text-base font-medium">${user.name || 'N/A'}</div>
+                                    <div class="text-sm text-gray-500">${user.phoneNumber}</div>
+                                </td>
+                                <td data-label="Registration Date" class="px-6 py-4 whitespace-nowrap text-sm">${registrationDate}</td>
+                                <td data-label="Role" class="px-6 py-4 whitespace-nowrap text-sm">${isAdmin ? 'Admin' : 'User'}</td>
+                            </tr>
+                        `;
+                    });
+                }
+                tableHtml += '</tbody></table>';
+                reportTableContainer.innerHTML = tableHtml;
+            }).catch(error => console.error("Error fetching users report: ", error));
+        }
+
+        function exportToExcel() {
+            if (currentReportData.length === 0) {
+                alert("No data to export.");
+                return;
+            }
+            const reportType = reportTypeSelect.value;
+            let dataToExport;
+            if (reportType === 'bookings') {
+                dataToExport = currentReportData.map(b => ({
+                    'Booking ID': b.bookingId,
+                    'Date': b.bookingDate.toDate().toLocaleString(),
+                    'Status': b.status,
+                    'Sender Name': b.senderDetails.name,
+                    'Sender Mobile': b.senderDetails.mobile,
+                    'Sender Address': b.senderDetails.address,
+                    'Sender Pincode': b.senderDetails.pincode,
+                    'Receiver Name': b.receiverDetails.name,
+                    'Receiver Mobile': b.receiverDetails.mobile,
+                    'Receiver Address': b.receiverDetails.address,
+                    'Receiver Pincode': b.receiverDetails.pincode,
+                }));
+            } else {
+                 dataToExport = currentReportData.map(u => ({
+                    'Name': u.name || 'N/A',
+                    'Phone Number': u.phoneNumber,
+                    'Registration Date': u.createdAt.toDate().toLocaleString(),
+                    'Role': u.isAdmin ? 'Admin' : 'User'
+                }));
+            }
+
+            const worksheet = XLSX.utils.json_to_sheet(dataToExport);
+            const workbook = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(workbook, worksheet, `${reportTitle.textContent}`);
+            XLSX.writeFile(workbook, `KhatuShyam_${reportTitle.textContent.replace(/ /g, '_')}.xlsx`);
+        }
+
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html class="light" lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>Settings - Khatu Shyam Enterprises</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Work+Sans:wght@400;500;600;700;800;900&amp;display=swap"
+        rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet" />
+    <link href="responsive.css" rel="stylesheet"/>
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+    <!-- Firebase Init -->
+    <script src="firebase-init.js"></script>
+    <script src="backup-system.js"></script>
+    <link href="toast.css" rel="stylesheet"/>
+    <script src="error-handler.js"></script>
+    <script>
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#1A3A6D",
+                        "secondary": "#FFC107",
+                        "background-light": "#F8F9FA",
+                        "background-dark": "#101922",
+                        "text-light": "#333333",
+                        "text-dark": "#F8F9FA"
+                    },
+                    fontFamily: {
+                        "display": ["Work Sans", "sans-serif"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.5rem",
+                        "lg": "0.75rem",
+                        "xl": "1rem",
+                        "full": "9999px"
+                    },
+                },
+            },
+        };
+    </script>
+</head>
+
+<body class="bg-background-light dark:bg-background-dark font-display text-text-light dark:text-text-dark">
+    <div class="relative flex min-h-screen w-full flex-col group/design-root overflow-x-hidden">
+        <div class="flex h-full grow">
+            <!-- Sidebar -->
+            <div id="sidebar"
+                class="fixed top-0 left-0 h-full w-64 bg-white dark:bg-background-dark border-r border-gray-200 dark:border-gray-700 z-20 transform -translate-x-full transition-transform duration-300 ease-in-out lg:translate-x-0">
+                <div class="flex h-full flex-col justify-between p-4">
+                    <div class="flex flex-col gap-8">
+                        <div class="flex items-center gap-3">
+                            <div class="bg-center bg-no-repeat aspect-square bg-cover rounded-full size-12"
+                                data-alt="Khatu Shyam Enterprises logo"
+                                style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuAOHbruo0jprzAtar_x2pUsiES3Q5D_dxlYhqlJcZL979Dk50YDLBht7ZtUB6iOQLpaFPQIzeH5OH3xuyH49Ot1_PnTvlvDPs7BPHYr374OXEpsgT6GaxlfvrGFYL-3vMlU5FBhwt8Hwo-9UOXhOIVE_S2fYnZZu4NNX9N5ZSC1fl6JlTPPdStldsWf5C8Rqsc1SxIDDDjyWuTWrTVhK_SqCY7uOQUE1iUvb9rWBtT-QtIBp4zrMGPQosJoByWLT3oEtJriiC0F9yQ");'>
+                            </div>
+                            <div class="flex flex-col">
+                                <h1 class="text-lg font-bold text-primary dark:text-white">Khatu Shyam</h1>
+                                <p class="text-sm text-gray-500 dark:text-gray-400">Admin Panel</p>
+                            </div>
+                        </div>
+                        <div class="flex flex-col gap-2">
+                            <a class="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-primary/10 dark:hover:bg-primary/20" href="admin_dashboard.html">
+                                <span class="material-symbols-outlined text-gray-700 dark:text-gray-300">dashboard</span>
+                                <p class="text-sm font-medium text-gray-700 dark:text-gray-300">Dashboard</p>
+                            </a>
+                            <a class="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-primary/10 dark:hover:bg-primary/20" href="admin.html">
+                                <span class="material-symbols-outlined text-gray-700 dark:text-gray-300">calendar_month</span>
+                                <p class="text-sm font-medium text-gray-700 dark:text-gray-300">Bookings</p>
+                            </a>
+                            <a class="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-primary/10 dark:hover:bg-primary/20" href="users.html">
+                                <span class="material-symbols-outlined text-gray-700 dark:text-gray-300">group</span>
+                                <p class="text-sm font-medium text-gray-700 dark:text-gray-300">Users</p>
+                            </a>
+                            <a class="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-primary/10 dark:hover:bg-primary/20" href="reports.html">
+                                <span class="material-symbols-outlined text-gray-700 dark:text-gray-300">assessment</span>
+                                <p class="text-sm font-medium text-gray-700 dark:text-gray-300">Reports</p>
+                            </a>
+                            <a class="flex items-center gap-3 px-3 py-2 rounded-lg bg-primary/10 dark:bg-primary/20" href="settings.html">
+                                <span class="material-symbols-outlined text-primary dark:text-secondary">settings</span>
+                                <p class="text-sm font-medium text-primary dark:text-secondary">Settings</p>
+                            </a>
+                        </div>
+                    </div>
+                    <div class="flex flex-col gap-1">
+                        <a id="logout-button"
+                            class="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-primary/10 dark:hover:bg-primary/20"
+                            href="#">
+                            <span class="material-symbols-outlined text-gray-700 dark:text-gray-300">logout</span>
+                            <p class="text-sm font-medium text-gray-700 dark:text-gray-300">Logout</p>
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Main Content -->
+            <main class="flex-1 lg:ml-64 p-4 sm:p-6 md:p-8 transition-all duration-300 ease-in-out">
+                <div class="max-w-7xl mx-auto">
+                    <!-- Header -->
+                    <div class="flex flex-col md:flex-row md:justify-between md:items-center gap-4 mb-6">
+                        <div class="flex items-center gap-4">
+                             <button id="sidebar-toggle" class="lg:hidden p-2 rounded-md bg-gray-100 dark:bg-gray-800">
+                                <span class="material-symbols-outlined">menu</span>
+                            </button>
+                            <h1 class="text-2xl sm:text-3xl md:text-4xl font-black tracking-tighter text-text-light dark:text-text-dark">
+                                Settings</h1>
+                        </div>
+                    </div>
+
+                    <!-- Settings Tabs -->
+                    <div class="flex flex-col sm:flex-row gap-6">
+                        <!-- Tabs Navigation -->
+                        <div class="sm:w-1/4">
+                            <div class="flex flex-col gap-2 bg-white dark:bg-background-dark p-4 rounded-xl shadow-md">
+                                <button data-tab="profile" class="tab-button active flex items-center gap-3 px-4 py-3 rounded-lg bg-primary/10 text-primary">
+                                    <span class="material-symbols-outlined">person</span>
+                                    <span class="font-medium">Profile</span>
+                                </button>
+                                <button data-tab="application" class="tab-button flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-primary/10">
+                                    <span class="material-symbols-outlined">tune</span>
+                                    <span class="font-medium">Application</span>
+                                </button>
+                                <button data-tab="security" class="tab-button flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-primary/10">
+                                    <span class="material-symbols-outlined">security</span>
+                                    <span class="font-medium">Security</span>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Tabs Content -->
+                        <div class="flex-1">
+                            <div id="profile" class="tab-content bg-white dark:bg-background-dark p-6 rounded-xl shadow-md">
+                                <h2 class="text-xl font-bold mb-6">Profile Settings</h2>
+                                <form class="space-y-6">
+                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                        <label class="flex flex-col">
+                                            <p class="font-medium pb-2">Full Name</p>
+                                            <input type="text" value="Admin User" class="form-input rounded-lg border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 focus:border-primary focus:ring-primary">
+                                        </label>
+                                        <label class="flex flex-col">
+                                            <p class="font-medium pb-2">Email Address</p>
+                                            <input type="email" value="admin@example.com" class="form-input rounded-lg border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 focus:border-primary focus:ring-primary">
+                                        </label>
+                                    </div>
+                                    <div class="flex justify-end">
+                                        <button type="submit" class="px-6 py-2 rounded-lg bg-primary text-white font-bold">Save Changes</button>
+                                    </div>
+                                </form>
+                                <hr class="my-8 dark:border-gray-700">
+                                <h2 class="text-xl font-bold mb-6">Change Password</h2>
+                                <form class="space-y-6">
+                                    <label class="flex flex-col">
+                                        <p class="font-medium pb-2">Current Password</p>
+                                        <input type="password" class="form-input rounded-lg border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 focus:border-primary focus:ring-primary">
+                                    </label>
+                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                        <label class="flex flex-col">
+                                            <p class="font-medium pb-2">New Password</p>
+                                            <input type="password" class="form-input rounded-lg border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 focus:border-primary focus:ring-primary">
+                                        </label>
+                                        <label class="flex flex-col">
+                                            <p class="font-medium pb-2">Confirm New Password</p>
+                                            <input type="password" class="form-input rounded-lg border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 focus:border-primary focus:ring-primary">
+                                        </label>
+                                    </div>
+                                    <div class="flex justify-end">
+                                        <button type="submit" class="px-6 py-2 rounded-lg bg-primary text-white font-bold">Update Password</button>
+                                    </div>
+                                </form>
+                            </div>
+
+                            <div id="application" class="tab-content hidden bg-white dark:bg-background-dark p-6 rounded-xl shadow-md">
+                                <h2 class="text-xl font-bold mb-6">Application Settings</h2>
+                                <form class="space-y-6">
+                                    <div class="flex items-center justify-between">
+                                        <div>
+                                            <p class="font-medium">Email Notifications</p>
+                                            <p class="text-sm text-gray-500">Receive email notifications for new bookings and status updates.</p>
+                                        </div>
+                                        <label class="relative inline-flex items-center cursor-pointer">
+                                            <input type="checkbox" value="" class="sr-only peer" checked>
+                                            <div class="w-11 h-6 bg-gray-200 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-primary"></div>
+                                        </label>
+                                    </div>
+                                     <div class="flex items-center justify-between">
+                                        <div>
+                                            <p class="font-medium">Dark Mode</p>
+                                            <p class="text-sm text-gray-500">Toggle between light and dark themes.</p>
+                                        </div>
+                                        <label class="relative inline-flex items-center cursor-pointer">
+                                            <input type="checkbox" id="dark-mode-toggle" class="sr-only peer">
+                                            <div class="w-11 h-6 bg-gray-200 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-primary"></div>
+                                        </label>
+                                    </div>
+                                </form>
+                            </div>
+
+                            <div id="security" class="tab-content hidden bg-white dark:bg-background-dark p-6 rounded-xl shadow-md">
+                                <h2 class="text-xl font-bold mb-6">Security Settings</h2>
+                                <div class="space-y-6">
+                                    <h3 class="text-lg font-bold">Data Backup & Export</h3>
+                                    <p class="text-sm text-gray-500 dark:text-gray-400">Export all your critical data (bookings, users, etc.) to a JSON file as a backup. You can import this file later to restore the data.</p>
+                                    <div class="flex flex-col sm:flex-row gap-4">
+                                        <button id="export-data-button" class="flex items-center justify-center gap-2 w-full sm:w-auto rounded-lg bg-primary px-6 py-3 text-center text-base font-bold text-white shadow-sm transition-all hover:bg-primary/90">
+                                            <span class="material-symbols-outlined">download</span>
+                                            <span>Export All Data</span>
+                                        </button>
+                                        <label class="flex items-center justify-center gap-2 w-full sm:w-auto rounded-lg bg-gray-200 dark:bg-gray-700 px-6 py-3 text-center text-base font-bold text-gray-800 dark:text-white shadow-sm transition-all hover:bg-gray-300 dark:hover:bg-gray-600 cursor-pointer">
+                                            <span class="material-symbols-outlined">upload</span>
+                                            <span>Import Data</span>
+                                            <input type="file" id="import-data-input" class="hidden" accept=".json">
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+        <script>
+            // --- AUTHENTICATION ---
+            auth.onAuthStateChanged(async (user) => {
+                if (user) {
+                    try {
+                        const userDoc = await db.collection('users').doc(user.uid).get();
+                        if (userDoc.exists && userDoc.data().khatu_website_admin) {
+                            console.log("Admin user authenticated successfully.");
+                        } else {
+                            ErrorHandler.show("Access Denied. You do not have permission to view this page.", "error");
+                            window.location.href = 'dashboard.html';
+                        }
+                    } catch (error) {
+                        ErrorHandler.handleFirebaseError(error);
+                        window.location.href = 'login.html';
+                    }
+                } else {
+                    console.log("No user logged in. Redirecting to login.");
+                    window.location.href = 'login.html';
+                }
+            });
+    
+            // --- UI ELEMENTS ---
+            const logoutButton = document.getElementById('logout-button');
+            const sidebar = document.getElementById('sidebar');
+            const sidebarToggle = document.getElementById('sidebar-toggle');
+            const tabButtons = document.querySelectorAll('.tab-button');
+            const tabContents = document.querySelectorAll('.tab-content');
+            const darkModeToggle = document.getElementById('dark-mode-toggle');
+    
+            // --- EVENT LISTENERS ---
+            sidebarToggle.addEventListener('click', () => {
+                sidebar.classList.toggle('-translate-x-full');
+            });
+    
+            logoutButton.addEventListener('click', (e) => {
+                e.preventDefault();
+                auth.signOut().then(() => {
+                    window.location.href = 'index.html';
+                });
+            });
+    
+            tabButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    tabButtons.forEach(btn => btn.classList.remove('active', 'bg-primary/10', 'text-primary'));
+                    tabContents.forEach(content => content.classList.add('hidden'));
+                    button.classList.add('active', 'bg-primary/10', 'text-primary');
+                    document.getElementById(button.dataset.tab).classList.remove('hidden');
+                });
+            });
+            
+            // Dark Mode Toggle
+            if (localStorage.getItem('color-theme') === 'dark') {
+                document.documentElement.classList.add('dark');
+                darkModeToggle.checked = true;
+            } else {
+                document.documentElement.classList.remove('dark')
+                darkModeToggle.checked = false;
+            }
+    
+            darkModeToggle.addEventListener('change', function() {
+                if (localStorage.getItem('color-theme')) {
+                    if (localStorage.getItem('color-theme') === 'light') {
+                        document.documentElement.classList.add('dark');
+                        localStorage.setItem('color-theme', 'dark');
+                    } else {
+                        document.documentElement.classList.remove('dark');
+                        localStorage.setItem('color-theme', 'light');
+                    }
+                } else {
+                    if (document.documentElement.classList.contains('dark')) {
+                        document.documentElement.classList.remove('dark');
+                        localStorage.setItem('color-theme', 'light');
+                    } else {
+                        document.documentElement.classList.add('dark');
+                        localStorage.setItem('color-theme', 'dark');
+                    }
+                }
+            });
+    
+            // --- BACKUP & RESTORE ---
+            const backupSystem = new BackupSystem();
+            const exportButton = document.getElementById('export-data-button');
+            const importInput = document.getElementById('import-data-input');
+    
+            exportButton.addEventListener('click', () => {
+                backupSystem.exportAllData();
+            });
+    
+            importInput.addEventListener('change', (event) => {
+                const file = event.target.files[0];
+                if (file) {
+                    if (confirm('Are you sure you want to import data? This will overwrite existing data and cannot be undone.')) {
+                        backupSystem.importData(file);
+                    }
+                }
+            });
+        </script></body>
+
+</html>

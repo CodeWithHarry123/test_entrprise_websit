@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html class="light" lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>Admin Dashboard - Khatu Shyam Enterprises</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Work+Sans:wght@400;500;600;700;800;900&amp;display=swap"
+        rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet" />
+    <link href="responsive.css" rel="stylesheet"/>
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+    <!-- Chart.js for charts -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- App Scripts -->
+    <script src="firebase-init.js"></script>
+    <script src="admin-analytics.js"></script>
+    <script>
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#1A3A6D",
+                        "secondary": "#FFC107",
+                        "background-light": "#F8F9FA",
+                        "background-dark": "#101922",
+                        "text-light": "#333333",
+                        "text-dark": "#F8F9FA"
+                    },
+                    fontFamily: {
+                        "display": ["Work Sans", "sans-serif"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.5rem",
+                        "lg": "0.75rem",
+                        "xl": "1rem",
+                        "full": "9999px"
+                    },
+                },
+            },
+        };
+    </script>
+    <style>
+         @keyframes slide-in {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+         @keyframes slide-out {
+            from { transform: translateX(0); opacity: 1; }
+            to { transform: translateX(100%); opacity: 0; }
+        }
+        .animate-slide-in { animation: slide-in 0.3s ease-out; }
+        .animate-slide-out { animation: slide-out 0.3s ease-in; }
+    </style>
+</head>
+
+<body class="bg-background-light dark:bg-background-dark font-display text-text-light dark:text-text-dark">
+    <div id="toast-container" class="fixed top-4 right-4 z-50 space-y-2"></div>
+    <div class="relative flex min-h-screen w-full flex-col group/design-root overflow-x-hidden">
+        <div class="flex h-full grow">
+            <!-- Sidebar -->
+            <div id="sidebar"
+                class="fixed top-0 left-0 h-full w-64 bg-white dark:bg-background-dark border-r border-gray-200 dark:border-gray-700 z-20 transform -translate-x-full transition-transform duration-300 ease-in-out lg:translate-x-0">
+                <div class="flex h-full flex-col justify-between p-4">
+                    <div class="flex flex-col gap-8">
+                        <div class="flex items-center gap-3">
+                            <div class="bg-center bg-no-repeat aspect-square bg-cover rounded-full size-12"
+                                data-alt="Khatu Shyam Enterprises logo"
+                                style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuAOHbruo0jprzAtar_x2pUsiES3Q5D_dxlYhqlJcZL979Dk50YDLBht7ZtUB6iOQLpaFPQIzeH5OH3xuyH49Ot1_PnTvlvDPs7BPHYr374OXEpsgT6GaxlfvrGFYL-3vMlU5FBhwt8Hwo-9UOXhOIVE_S2fYnZZu4NNX9N5ZSC1fl6JlTPPdStldsWf5C8Rqsc1SxIDDDjyWuTWrTVhK_SqCY7uOQUE1iUvb9rWBtT-QtIBp4zrMGPQosJoByWLT3oEtJriiC0F9yQ");'>
+                            </div>
+                            <div class="flex flex-col">
+                                <h1 class="text-lg font-bold text-primary dark:text-white">Khatu Shyam</h1>
+                                <p class="text-sm text-gray-500 dark:text-gray-400">Admin Panel</p>
+                            </div>
+                        </div>
+                        <div class="flex flex-col gap-2">
+                            <a class="flex items-center gap-3 px-3 py-2 rounded-lg bg-primary/10 dark:bg-primary/20" href="admin_dashboard.html">
+                                <span class="material-symbols-outlined text-primary dark:text-secondary">dashboard</span>
+                                <p class="text-sm font-medium text-primary dark:text-secondary">Dashboard</p>
+                            </a>
+                            <a class="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-primary/10 dark:hover:bg-primary/20" href="admin.html">
+                                <span class="material-symbols-outlined text-gray-700 dark:text-gray-300">calendar_month</span>
+                                <p class="text-sm font-medium text-gray-700 dark:text-gray-300">Bookings</p>
+                            </a>
+                            <a class="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-primary/10 dark:hover:bg-primary/20" href="users.html">
+                                <span class="material-symbols-outlined text-gray-700 dark:text-gray-300">group</span>
+                                <p class="text-sm font-medium text-gray-700 dark:text-gray-300">Users</p>
+                            </a>
+                            <a class="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-primary/10 dark:hover:bg-primary/20" href="reports.html">
+                                <span class="material-symbols-outlined text-gray-700 dark:text-gray-300">assessment</span>
+                                <p class="text-sm font-medium text-gray-700 dark:text-gray-300">Reports</p>
+                            </a>
+                            <a class="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-primary/10 dark:hover:bg-primary/20" href="settings.html">
+                                <span class="material-symbols-outlined text-gray-700 dark:text-gray-300">settings</span>
+                                <p class="text-sm font-medium text-gray-700 dark:text-gray-300">Settings</p>
+                            </a>
+                        </div>
+                    </div>
+                    <div class="flex flex-col gap-1">
+                        <a id="logout-button"
+                            class="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-primary/10 dark:hover:bg-primary/20"
+                            href="#">
+                            <span class="material-symbols-outlined text-gray-700 dark:text-gray-300">logout</span>
+                            <p class="text-sm font-medium text-gray-700 dark:text-gray-300">Logout</p>
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Main Content -->
+            <main class="flex-1 lg:ml-64 p-4 sm:p-6 md:p-8 transition-all duration-300 ease-in-out">
+                <div class="max-w-7xl mx-auto">
+                    <!-- Header -->
+                    <div class="flex flex-col md:flex-row md:justify-between md:items-center gap-4 mb-6">
+                        <div class="flex items-center gap-4">
+                             <button id="sidebar-toggle" class="lg:hidden p-2 rounded-md bg-gray-100 dark:bg-gray-800">
+                                <span class="material-symbols-outlined">menu</span>
+                            </button>
+                            <h1 class="text-2xl sm:text-3xl md:text-4xl font-black tracking-tighter text-text-light dark:text-text-dark">
+                                Admin Dashboard</h1>
+                        </div>
+                    </div>
+
+                    <!-- Stats Cards -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mb-6">
+                        <div class="bg-white dark:bg-background-dark p-6 rounded-xl shadow-md flex items-center gap-4">
+                            <div class="bg-blue-500/10 p-3 rounded-full">
+                                <span class="material-symbols-outlined text-blue-500 text-3xl">receipt_long</span>
+                            </div>
+                            <div>
+                                <p class="text-gray-500 dark:text-gray-400 text-sm">Total Revenue</p>
+                                <p id="total-revenue" class="text-2xl font-bold">₹0.00</p>
+                            </div>
+                        </div>
+                        <div class="bg-white dark:bg-background-dark p-6 rounded-xl shadow-md flex items-center gap-4">
+                            <div class="bg-primary/10 p-3 rounded-full">
+                                <span class="material-symbols-outlined text-primary text-3xl">calendar_month</span>
+                            </div>
+                            <div>
+                                <p class="text-gray-500 dark:text-gray-400 text-sm">Total Bookings</p>
+                                <p id="total-bookings" class="text-2xl font-bold">0</p>
+                            </div>
+                        </div>
+                        <div class="bg-white dark:bg-background-dark p-6 rounded-xl shadow-md flex items-center gap-4">
+                            <div class="bg-secondary/10 p-3 rounded-full">
+                                <span class="material-symbols-outlined text-secondary text-3xl">group</span>
+                            </div>
+                            <div>
+                                <p class="text-gray-500 dark:text-gray-400 text-sm">Total Users</p>
+                                <p id="total-users" class="text-2xl font-bold">0</p>
+                            </div>
+                        </div>
+                        <div class="bg-white dark:bg-background-dark p-6 rounded-xl shadow-md flex items-center gap-4">
+                            <div class="bg-green-500/10 p-3 rounded-full">
+                                <span class="material-symbols-outlined text-green-500 text-3xl">local_shipping</span>
+                            </div>
+                            <div>
+                                <p class="text-gray-500 dark:text-gray-400 text-sm">Bookings Delivered</p>
+                                <p id="total-delivered" class="text-2xl font-bold">0</p>
+                            </div>
+                        </div>
+                        <div class="bg-white dark:bg-background-dark p-6 rounded-xl shadow-md flex items-center gap-4">
+                            <div class="bg-yellow-500/10 p-3 rounded-full">
+                                <span class="material-symbols-outlined text-yellow-500 text-3xl">pending</span>
+                            </div>
+                            <div>
+                                <p class="text-gray-500 dark:text-gray-400 text-sm">Bookings Pending</p>
+                                <p id="total-pending" class="text-2xl font-bold">0</p>
+                            </div>
+                        </div>
+                        <div class="bg-white dark:bg-background-dark p-6 rounded-xl shadow-md flex items-center gap-4">
+                            <div class="bg-red-500/10 p-3 rounded-full">
+                                <span class="material-symbols-outlined text-red-500 text-3xl">cancel</span>
+                            </div>
+                            <div>
+                                <p class="text-gray-500 dark:text-gray-400 text-sm">Cancelled Bookings</p>
+                                <p id="total-cancelled" class="text-2xl font-bold">0</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Charts -->
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+                        <div class="bg-white dark:bg-background-dark p-6 rounded-xl shadow-md">
+                            <canvas id="revenue-chart"></canvas>
+                        </div>
+                        <div class="bg-white dark:bg-background-dark p-6 rounded-xl shadow-md">
+                            <canvas id="routes-chart"></canvas>
+                        </div>
+                        <div class="bg-white dark:bg-background-dark p-6 rounded-xl shadow-md">
+                            <canvas id="bookings-chart"></canvas>
+                        </div>
+                        <div class="bg-white dark:bg-background-dark p-6 rounded-xl shadow-md">
+                            <canvas id="users-chart"></canvas>
+                        </div>
+                    </div>
+
+                </div>
+            </main>
+        </div>
+    </div>
+    <script>
+        function showToast(message, type = 'info') {
+            const container = document.getElementById('toast-container');
+            if (!container) return;
+
+            const colors = {
+                success: 'bg-green-500',
+                error: 'bg-red-500',
+                warning: 'bg-yellow-500',
+                info: 'bg-blue-500'
+            };
+            const icons = {
+                success: '✓',
+                error: '✗',
+                warning: '⚠',
+                info: 'ℹ'
+            };
+
+            const toast = document.createElement('div');
+            toast.className = `${colors[type]} text-white px-6 py-4 rounded-lg shadow-lg flex items-center space-x-3 animate-slide-in`;
+            toast.innerHTML = `
+                <span class="text-2xl">${icons[type]}</span>
+                <span class="font-medium">${message}</span>
+                <button onclick="this.parentElement.remove()" class="ml-4 text-white hover:text-gray-200">✕</button>
+            `;
+
+            container.appendChild(toast);
+
+            setTimeout(() => {
+                toast.classList.add('animate-slide-out');
+                setTimeout(() => toast.remove(), 300);
+            }, 5000);
+        }
+
+        // --- AUTHENTICATION ---
+        auth.onAuthStateChanged(user => {
+            if (user) {
+                db.collection('users').doc(user.uid).get()
+                    .then((doc) => {
+                        if (doc.exists && doc.data().role === 'admin') {
+                            console.log("Admin user authenticated successfully.");
+                            loadDashboard();
+                        } else {
+                            console.log("Access Denied: User is not an admin.");
+                            showToast("Access Denied. You do not have permission to view this page.", "error");
+                            window.location.href = 'dashboard.html';
+                        }
+                    })
+                    .catch((error) => {
+                        console.error("Error getting user document:", error);
+                        window.location.href = 'login.html';
+                    });
+            } else {
+                console.log("No user logged in. Redirecting to login.");
+                window.location.href = 'login.html';
+            }
+        });
+
+        // --- UI ELEMENTS ---
+        const logoutButton = document.getElementById('logout-button');
+        const sidebar = document.getElementById('sidebar');
+        const sidebarToggle = document.getElementById('sidebar-toggle');
+
+        // --- EVENT LISTENERS ---
+        sidebarToggle.addEventListener('click', () => {
+            sidebar.classList.toggle('-translate-x-full');
+        });
+
+        logoutButton.addEventListener('click', (e) => {
+            e.preventDefault();
+            auth.signOut().then(() => {
+                window.location.href = 'index.html';
+            });
+        });
+
+        // Dark Mode Check
+        if (localStorage.getItem('color-theme') === 'dark') {
+            document.documentElement.classList.add('dark');
+        } else {
+            document.documentElement.classList.remove('dark');
+        }
+
+        // --- DASHBOARD LOADING ---
+        async function loadDashboard() {
+            const analytics = new AdminAnalytics();
+            try {
+                const data = await analytics.getDashboardData();
+                analytics.renderDashboard(data);
+            } catch (error) {
+                console.error("Error loading dashboard data:", error);
+                showToast("Could not load dashboard data.", "error");
+            }
+        }
+
+    </script>
+</body>
+
+</html>

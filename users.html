@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html class="light" lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>User Management - Khatu Shyam Enterprises</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Work+Sans:wght@400;500;600;700;900&amp;display=swap"
+        rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet" />
+    <link href="responsive.css" rel="stylesheet"/>
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+    <!-- Firebase Init -->
+    <script src="firebase-init.js"></script>
+    <script>
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#1A3A6D",
+                        "secondary": "#FFC107",
+                        "background-light": "#F8F9FA",
+                        "background-dark": "#101922",
+                        "text-light": "#333333",
+                        "text-dark": "#F8F9FA"
+                    },
+                    fontFamily: {
+                        "display": ["Work Sans", "sans-serif"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.5rem",
+                        "lg": "0.75rem",
+                        "xl": "1rem",
+                        "full": "9999px"
+                    },
+                },
+            },
+        };
+    </script>
+</head>
+
+<body class="bg-background-light dark:bg-background-dark font-display text-text-light dark:text-text-dark">
+    <div class="relative flex min-h-screen w-full flex-col group/design-root overflow-x-hidden">
+        <div class="flex h-full grow">
+            <!-- Sidebar -->
+            <div id="sidebar"
+                class="fixed top-0 left-0 h-full w-64 bg-white dark:bg-background-dark border-r border-gray-200 dark:border-gray-700 z-20 transform -translate-x-full transition-transform duration-300 ease-in-out lg:translate-x-0">
+                <div class="flex h-full flex-col justify-between p-4">
+                    <div class="flex flex-col gap-8">
+                        <div class="flex items-center gap-3">
+                            <div class="bg-center bg-no-repeat aspect-square bg-cover rounded-full size-12"
+                                data-alt="Khatu Shyam Enterprises logo"
+                                style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuAOHbruo0jprzAtar_x2pUsiES3Q5D_dxlYhqlJcZL979Dk50YDLBht7ZtUB6iOQLpaFPQIzeH5OH3xuyH49Ot1_PnTvlvDPs7BPHYr374OXEpsgT6GaxlfvrGFYL-3vMlU5FBhwt8Hwo-9UOXhOIVE_S2fYnZZu4NNX9N5ZSC1fl6JlTPPdStldsWf5C8Rqsc1SxIDDDjyWuTWrTVhK_SqCY7uOQUE1iUvb9rWBtT-QtIBp4zrMGPQosJoByWLT3oEtJriiC0F9yQ");'>
+                            </div>
+                            <div class="flex flex-col">
+                                <h1 class="text-lg font-bold text-primary dark:text-white">Khatu Shyam</h1>
+                                <p class="text-sm text-gray-500 dark:text-gray-400">Admin Panel</p>
+                            </div>
+                        </div>
+                        <div class="flex flex-col gap-2">
+                            <a class="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-primary/10 dark:hover:bg-primary/20" href="admin_dashboard.html">
+                                <span class="material-symbols-outlined text-gray-700 dark:text-gray-300">dashboard</span>
+                                <p class="text-sm font-medium text-gray-700 dark:text-gray-300">Dashboard</p>
+                            </a>
+                            <a class="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-primary/10 dark:hover:bg-primary/20" href="admin.html">
+                                <span class="material-symbols-outlined text-gray-700 dark:text-gray-300">calendar_month</span>
+                                <p class="text-sm font-medium text-gray-700 dark:text-gray-300">Bookings</p>
+                            </a>
+                            <a class="flex items-center gap-3 px-3 py-2 rounded-lg bg-primary/10 dark:bg-primary/20" href="users.html">
+                                <span class="material-symbols-outlined text-primary dark:text-secondary">group</span>
+                                <p class="text-sm font-medium text-primary dark:text-secondary">Users</p>
+                            </a>
+                            <a class="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-primary/10 dark:hover:bg-primary/20" href="reports.html">
+                                <span class="material-symbols-outlined text-gray-700 dark:text-gray-300">assessment</span>
+                                <p class="text-sm font-medium text-gray-700 dark:text-gray-300">Reports</p>
+                            </a>
+                            <a class="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-primary/10 dark:hover:bg-primary/20" href="settings.html">
+                                <span class="material-symbols-outlined text-gray-700 dark:text-gray-300">settings</span>
+                                <p class="text-sm font-medium text-gray-700 dark:text-gray-300">Settings</p>
+                            </a>
+                        </div>
+                    </div>
+                    <div class="flex flex-col gap-1">
+                        <a id="logout-button"
+                            class="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-primary/10 dark:hover:bg-primary/20"
+                            href="#">
+                            <span class="material-symbols-outlined text-gray-700 dark:text-gray-300">logout</span>
+                            <p class="text-sm font-medium text-gray-700 dark:text-gray-300">Logout</p>
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Main Content -->
+            <main class="flex-1 lg:ml-64 p-4 sm:p-6 md:p-8 transition-all duration-300 ease-in-out">
+                <div class="max-w-7xl mx-auto">
+                    <!-- Header -->
+                    <div class="flex flex-col md:flex-row md:justify-between md:items-center gap-4 mb-6">
+                        <div class="flex items-center gap-4">
+                            <button id="sidebar-toggle" class="lg:hidden p-2 rounded-md bg-gray-100 dark:bg-gray-800">
+                                <span class="material-symbols-outlined">menu</span>
+                            </button>
+                            <h1
+                                class="text-2xl sm:text-3xl md:text-4xl font-black tracking-tighter text-text-light dark:text-text-dark">
+                                User Management</h1>
+                        </div>
+                        <button id="add-user-button"
+                            class="flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 bg-primary text-white text-sm font-bold leading-normal tracking-[0.015em]">
+                            <span class="truncate">Add User</span>
+                        </button>
+                    </div>
+
+                    <!-- Search & Filter -->
+                    <div class="mb-6">
+                        <label class="flex flex-col min-w-40 h-12 w-full">
+                            <div class="flex w-full flex-1 items-stretch rounded-lg h-full">
+                                <div
+                                    class="text-gray-500 dark:text-gray-400 flex border-none bg-white dark:bg-background-dark items-center justify-center pl-4 rounded-l-lg border-r-0">
+                                    <span class="material-symbols-outlined">search</span>
+                                </div>
+                                <input id="search-input"
+                                    class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-r-lg text-text-light dark:text-text-dark focus:outline-0 focus:ring-2 focus:ring-primary/50 border-gray-300 dark:border-gray-600 bg-white dark:bg-background-dark h-full placeholder:text-gray-400 px-4 text-base font-normal"
+                                    placeholder="Search by Name or Mobile Number" value="" />
+                            </div>
+                        </label>
+                    </div>
+
+                    <!-- Desktop Table View -->
+                    <div class="hidden md:block overflow-hidden rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-background-dark shadow-sm">
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left">
+                                <thead class="bg-gray-50 dark:bg-gray-800">
+                                    <tr>
+                                        <th class="px-6 py-4 text-left text-xs font-bold text-gray-500 dark:text-gray-300 uppercase tracking-wider">User Info</th>
+                                        <th class="px-6 py-4 text-left text-xs font-bold text-gray-500 dark:text-gray-300 uppercase tracking-wider">Registration Date</th>
+                                        <th class="px-6 py-4 text-left text-xs font-bold text-gray-500 dark:text-gray-300 uppercase tracking-wider">Status</th>
+                                        <th class="px-6 py-4 text-left text-xs font-bold text-gray-500 dark:text-gray-300 uppercase tracking-wider">Role</th>
+                                        <th class="px-6 py-4 text-left text-xs font-bold text-gray-500 dark:text-gray-300 uppercase tracking-wider">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="users-table-body" class="divide-y divide-gray-200 dark:divide-gray-700">
+                                    <!-- User data will be loaded here -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Mobile Card View -->
+                    <div id="users-card-view" class="md:hidden grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <!-- Mobile data will be loaded here -->
+                    </div>
+                </div>
+            </main>
+        </div>
+
+        <!-- User Modal -->
+        <div id="user-modal" class="fixed inset-0 bg-black bg-opacity-50 z-30 hidden items-center justify-center p-4">
+            <div id="modal-content" class="bg-white dark:bg-background-dark rounded-xl shadow-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto transform transition-transform duration-300 scale-95">
+                <div class="flex justify-between items-center p-4 border-b border-gray-200 dark:border-gray-700 sticky top-0 bg-white dark:bg-background-dark z-10">
+                    <h2 id="modal-title" class="text-xl font-bold text-primary dark:text-secondary">Add User</h2>
+                    <button id="modal-close-button" class="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700">
+                        <span class="material-symbols-outlined">close</span>
+                    </button>
+                </div>
+                <form id="user-form" class="p-6 space-y-6">
+                    <input type="hidden" id="user-id">
+                    <label class="flex flex-col">
+                        <p class="font-medium pb-2">Full Name</p>
+                        <input type="text" id="user-name" class="form-input rounded-lg border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 focus:border-primary focus:ring-primary" required>
+                    </label>
+                    <label class="flex flex-col">
+                        <p class="font-medium pb-2">Phone Number</p>
+                        <input type="text" id="user-phone" class="form-input rounded-lg border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 focus:border-primary focus:ring-primary" required>
+                    </label>
+                    <label class="flex flex-col">
+                        <p class="font-medium pb-2">Role</p>
+                        <select id="user-role" class="form-select rounded-lg border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 focus:border-primary focus:ring-primary">
+                            <option value="user">User</option>
+                            <option value="admin">Admin</option>
+                        </select>
+                    </label>
+                    <div class="flex justify-end gap-4">
+                        <button type="button" id="modal-cancel-button" class="px-6 py-2 rounded-lg bg-gray-200 dark:bg-gray-700 text-text-light dark:text-text-dark font-bold">Cancel</button>
+                        <button type="submit" id="modal-save-button" class="px-6 py-2 rounded-lg bg-primary text-white font-bold">Save</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <script>
+        // --- AUTHENTICATION ---
+        auth.onAuthStateChanged(user => {
+            if (user) {
+                // User is logged in, now check for admin status in Firestore.
+                db.collection('users').doc(user.uid).get()
+                    .then((doc) => {
+                        if (doc.exists && doc.data().khatu_website_admin) {
+                            // User is an admin, allow access and load data.
+                            console.log("Admin user authenticated successfully.");
+                            loadAllUsers();
+                        } else {
+                            // User is not an admin, redirect them.
+                            console.log("Access Denied: User is not an admin.");
+                            alert("Access Denied. You do not have permission to view this page.");
+                            window.location.href = 'dashboard.html'; // Redirect to dashboard
+                        }
+                    })
+                    .catch((error) => {
+                        console.error("Error getting user document:", error);
+                        window.location.href = 'login.html'; // Redirect on error
+                    });
+            } else {
+                // No user is signed in, redirect to login.
+                console.log("No user logged in. Redirecting to login.");
+                window.location.href = 'login.html';
+            }
+        });
+
+        // --- UI ELEMENTS ---
+        const usersTableBody = document.getElementById('users-table-body');
+        const usersCardView = document.getElementById('users-card-view');
+        const logoutButton = document.getElementById('logout-button');
+        const sidebar = document.getElementById('sidebar');
+        const sidebarToggle = document.getElementById('sidebar-toggle');
+        const searchInput = document.getElementById('search-input');
+        const addUserButton = document.getElementById('add-user-button');
+        const userModal = document.getElementById('user-modal');
+        const modalContent = document.getElementById('modal-content');
+        const modalTitle = document.getElementById('modal-title');
+        const modalCloseButton = document.getElementById('modal-close-button');
+        const modalCancelButton = document.getElementById('modal-cancel-button');
+        const userForm = document.getElementById('user-form');
+        const userIdInput = document.getElementById('user-id');
+        const userNameInput = document.getElementById('user-name');
+        const userPhoneInput = document.getElementById('user-phone');
+        const userRoleInput = document.getElementById('user-role');
+
+        let allUsersData = [];
+
+        // --- EVENT LISTENERS ---
+        sidebarToggle.addEventListener('click', () => sidebar.classList.toggle('-translate-x-full'));
+        logoutButton.addEventListener('click', (e) => {
+            e.preventDefault();
+            auth.signOut().then(() => window.location.href = 'index.html');
+        });
+        searchInput.addEventListener('input', (e) => renderUsers(allUsersData, e.target.value));
+        addUserButton.addEventListener('click', openUserModal);
+        modalCloseButton.addEventListener('click', closeUserModal);
+        modalCancelButton.addEventListener('click', closeUserModal);
+        userModal.addEventListener('click', (e) => {
+            if (e.target === userModal) closeUserModal();
+        });
+        userForm.addEventListener('submit', saveUser);
+
+        document.body.addEventListener('click', function(event) {
+            const editButton = event.target.closest('.edit-user-button');
+            if (editButton) {
+                const userId = editButton.dataset.userId;
+                openUserModal(userId);
+            }
+        });
+
+        // Dark Mode Check
+        if (localStorage.getItem('color-theme') === 'dark') {
+            document.documentElement.classList.add('dark');
+        } else {
+            document.documentElement.classList.remove('dark');
+        }
+
+        // --- MODAL FUNCTIONS ---
+        function openUserModal(userId = null) {
+            userForm.reset();
+            if (userId) {
+                const user = allUsersData.find(u => u.id === userId);
+                if (user) {
+                    modalTitle.textContent = 'Edit User';
+                    userIdInput.value = user.id;
+                    userNameInput.value = user.name || '';
+                    userPhoneInput.value = user.phoneNumber || '';
+                    userRoleInput.value = user.khatu_website_admin ? 'admin' : 'user';
+                }
+            } else {
+                modalTitle.textContent = 'Add User';
+                userIdInput.value = '';
+            }
+            userModal.classList.remove('hidden');
+            userModal.classList.add('flex');
+            setTimeout(() => modalContent.classList.remove('scale-95'), 50);
+        }
+
+        function closeUserModal() {
+            modalContent.classList.add('scale-95');
+            setTimeout(() => {
+                userModal.classList.add('hidden');
+                userModal.classList.remove('flex');
+            }, 300);
+        }
+
+        function saveUser(e) {
+            e.preventDefault();
+            const id = userIdInput.value;
+            const userData = {
+                name: userNameInput.value,
+                phoneNumber: userPhoneInput.value,
+                khatu_website_admin: userRoleInput.value === 'admin',
+                createdAt: firebase.firestore.FieldValue.serverTimestamp() // This will be ignored on update
+            };
+
+            let promise;
+            if (id) {
+                // Update existing user
+                delete userData.createdAt; // Don't update createdAt
+                promise = db.collection('users').doc(id).update(userData);
+            } else {
+                // Add new user - Note: This doesn't create an auth user, just a DB entry.
+                promise = db.collection('users').add(userData);
+            }
+
+            promise.then(() => {
+                closeUserModal();
+                loadAllUsers(); // Refresh the list
+            }).catch(error => console.error("Error saving user: ", error));
+        }
+
+        // --- DATA LOADING & RENDERING ---
+        function loadAllUsers() {
+            db.collection('users').get()
+                .then((querySnapshot) => {
+                    allUsersData = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                    renderUsers(allUsersData);
+                })
+                .catch((error) => {
+                    console.error("Error getting users: ", error);
+                    usersTableBody.innerHTML = `<tr><td colspan="5" class="text-center py-10 text-red-500">Error loading users.</td></tr>`;
+                    usersCardView.innerHTML = `<p class="text-center py-10 text-red-500 col-span-full">Error loading users.</p>`;
+                });
+        }
+
+        function renderUsers(users, filter = '') {
+            const filteredUsers = users.filter(user => {
+                const searchTerm = filter.toLowerCase();
+                const name = (user.name || '').toLowerCase();
+                const phone = (user.phoneNumber || '').toLowerCase();
+                return name.includes(searchTerm) || phone.includes(searchTerm);
+            });
+
+            usersTableBody.innerHTML = '';
+            usersCardView.innerHTML = '';
+
+            if (filteredUsers.length === 0) {
+                const noDataHtml = `<p class="text-center py-10 col-span-full">No users found.</p>`;
+                usersTableBody.innerHTML = `<tr><td colspan="5">${noDataHtml}</td></tr>`;
+                usersCardView.innerHTML = noDataHtml;
+                return;
+            }
+
+            filteredUsers.forEach((user) => {
+                const registrationDate = user.createdAt ? user.createdAt.toDate().toLocaleDateString() : 'N/A';
+                const isAdmin = user.khatu_website_admin === true;
+                const userInitial = (user.name || '?').charAt(0).toUpperCase();
+
+                // --- Create Desktop Table Row ---
+                const tableRow = `
+                    <tr class="hover:bg-gray-50 dark:hover:bg-gray-800/50">
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="flex items-center gap-4">
+                                <div class="flex-shrink-0 h-10 w-10 rounded-full bg-primary/20 text-primary flex items-center justify-center font-bold">${userInitial}</div>
+                                <div>
+                                    <div class="text-base font-medium text-text-light dark:text-white">${user.name || 'N/A'}</div>
+                                    <div class="text-sm text-gray-500 dark:text-gray-400">${user.phoneNumber}</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-base text-gray-600 dark:text-gray-400">${registrationDate}</td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <span class="px-3 py-1 inline-flex text-sm leading-5 font-semibold rounded-full bg-green-100 text-green-800">Active</span>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                            ${isAdmin ? '<span class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-primary/20 text-primary">Admin</span>' : '<span class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-gray-200 text-gray-800">User</span>'}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                            <button class="edit-user-button text-primary hover:text-primary/80" data-user-id="${user.id}">Edit</button>
+                        </td>
+                    </tr>`;
+                usersTableBody.innerHTML += tableRow;
+
+                // --- Create Mobile Card ---
+                const card = `
+                    <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-4 space-y-3">
+                        <div class="flex justify-between items-start">
+                            <div class="flex items-center gap-3">
+                                <div class="flex-shrink-0 h-10 w-10 rounded-full bg-primary/20 text-primary flex items-center justify-center font-bold">${userInitial}</div>
+                                <div>
+                                    <p class="font-bold text-primary dark:text-secondary">${user.name || 'N/A'}</p>
+                                    <p class="text-sm text-gray-500 dark:text-gray-400">${user.phoneNumber}</p>
+                                </div>
+                            </div>
+                            ${isAdmin ? '<span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-primary/20 text-primary">Admin</span>' : '<span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-gray-200 text-gray-800">User</span>'}
+                        </div>
+                        <div class="text-sm flex justify-between items-center pt-2 border-t border-gray-200 dark:border-gray-700">
+                            <p class="text-gray-500 dark:text-gray-400">Registered: ${registrationDate}</p>
+                            <button class="edit-user-button text-primary hover:text-primary/80 font-medium" data-user-id="${user.id}">Edit</button>
+                        </div>
+                    </div>`;
+                usersCardView.innerHTML += card;
+            });
+        }
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,25 @@
+'''/* toast.css */
+.toast {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    padding: 16px 24px;
+    border-radius: 8px;
+    color: white;
+    font-weight: 500;
+    opacity: 0;
+    transform: translateY(-20px);
+    transition: all 0.3s ease;
+    z-index: 9999;
+}
+
+.toast.show {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.toast-success { background: #4caf50; }
+.toast-error { background: #f44336; }
+.toast-warning { background: #ff9800; }
+.toast-info { background: #2196F3; } /* Added for consistency */
+'''

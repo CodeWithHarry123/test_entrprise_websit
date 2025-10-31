@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Track Your Parcel - Khatu Shyam Enterprises</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Work+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="responsive.css" rel="stylesheet"/>
+    <style>
+        #tracking-map {
+            height: 400px;
+            width: 100%;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 font-display">
+
+    <div class="container mx-auto p-4 md:p-8">
+        <div class="bg-white rounded-lg shadow-lg p-6">
+            <h1 class="text-2xl md:text-3xl font-bold text-center text-gray-800 mb-4">Track Your Parcel</h1>
+            <div id="booking-id-display" class="text-center text-lg text-gray-600 mb-6"></div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                <div class="bg-gray-50 p-4 rounded-lg">
+                    <h2 class="font-bold text-lg mb-2">Status</h2>
+                    <p id="tracking-status" class="text-xl text-blue-600">Loading...</p>
+                </div>
+                <div class="bg-gray-50 p-4 rounded-lg">
+                    <h2 class="font-bold text-lg mb-2">Estimated Delivery</h2>
+                    <p id="tracking-eta" class="text-xl text-gray-700">Loading...</p>
+                </div>
+            </div>
+
+            <div id="tracking-map" class="rounded-lg"></div>
+        </div>
+    </div>
+
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+    <!-- Firebase Init -->
+    <script src="firebase-init.js"></script>
+    <!-- Tracking System -->
+    <script src="tracking-system.js"></script>
+    <!-- Google Maps API -->
+    <script src="https://maps.googleapis.com/maps/api/js?key=YOUR_GOOGLE_MAPS_API_KEY&callback=initTracking" async defer></script>
+
+    <script>
+        function initTracking() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const bookingId = urlParams.get('bookingId');
+
+            if (bookingId) {
+                document.getElementById('booking-id-display').textContent = `Booking ID: ${bookingId}`;
+                const tracker = new TrackingSystem(bookingId);
+                tracker.startTracking();
+            } else {
+                document.getElementById('tracking-status').textContent = 'No booking ID provided.';
+                document.getElementById('tracking-eta').textContent = '-';
+                document.getElementById('booking-id-display').textContent = 'Please provide a booking ID in the URL.';
+            }
+        }
+    </script>
+
+</body>
+</html>

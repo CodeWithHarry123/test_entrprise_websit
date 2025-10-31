@@ -1,0 +1,77 @@
+/* responsive.css */
+ @media (max-width: 768px) {
+    .dashboard-grid {
+        grid-template-columns: 1fr !important;
+    }
+    
+    .booking-card {
+        padding: 15px;
+        margin: 10px 0;
+    }
+    
+    table {
+        font-size: 12px;
+    }
+    
+    .action-buttons {
+        flex-direction: column;
+        gap: 5px;
+    }
+    
+    .navbar {
+        flex-direction: column;
+    }
+    
+    .form-grid {
+        grid-template-columns: 1fr !important;
+    }
+
+    .responsive-table thead {
+        display: none;
+    }
+    .responsive-table, .responsive-table tbody, .responsive-table tr, .responsive-table td {
+        display: block;
+        width: 100%;
+    }
+    .responsive-table tr {
+        margin-bottom: 1rem;
+        border: 1px solid #e2e8f0;
+        border-radius: 0.5rem;
+        overflow: hidden;
+    }
+    .responsive-table td {
+        text-align: right;
+        padding-left: 50%;
+        position: relative;
+        border: none;
+        border-bottom: 1px solid #e2e8f0;
+    }
+    .responsive-table td:last-child {
+        border-bottom: none;
+    }
+    .responsive-table td::before {
+        content: attr(data-label);
+        position: absolute;
+        left: 0;
+        width: 50%;
+        padding-left: 1.5rem;
+        font-weight: 600;
+        text-align: left;
+        color: #4a5568;
+    }
+}
+
+ @media (max-width: 480px) {
+    h1 {
+        font-size: 24px;
+    }
+    
+    .card {
+        padding: 10px;
+    }
+    
+    button {
+        width: 100%;
+        padding: 12px;
+    }
+}

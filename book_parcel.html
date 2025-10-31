@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Khatu Shyam Enterprises - Book a Parcel</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Work+Sans:wght@400;500;700;900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet"/>
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+    <!-- Google Maps API (for Price Calculator) -->
+    <script src="https://maps.googleapis.com/maps/api/js?key=YOUR_GOOGLE_MAPS_API_KEY"></script>
+    <!-- App Scripts -->
+    <script src="firebase-init.js"></script>
+    <script src="input-validator.js"></script>
+    <script src="payment-gateway.js"></script>
+    <script src="price-calculator.js"></script>
+    <script src="rate-limiter.js"></script>
+    <link href="toast.css" rel="stylesheet"/>
+    <script src="error-handler.js"></script>
+<script>
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#1173d4",
+                        "background-light": "#f6f7f8",
+                        "background-dark": "#101922",
+                    },
+                    fontFamily: {
+                        "display": ["Work Sans", "Noto Sans", "sans-serif"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                },
+            },
+        }
+    </script>
+    <style>
+        .material-symbols-outlined {
+            font-variation-settings:
+                'FILL' 0,
+                'wght' 400,
+                'GRAD' 0,
+                'opsz' 24
+        }
+         @keyframes slide-in {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+         @keyframes slide-out {
+            from { transform: translateX(0); opacity: 1; }
+            to { transform: translateX(100%); opacity: 0; }
+        }
+        .animate-slide-in { animation: slide-in 0.3s ease-out; }
+        .animate-slide-out { animation: slide-out 0.3s ease-in; }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark font-display text-[#333333] dark:text-gray-200">
+<div id="toast-container" class="fixed top-4 right-4 z-50 space-y-2"></div>
+<div class="relative flex h-auto min-h-screen w-full flex-col group/design-root overflow-x-hidden"><div class="layout-container flex h-full grow flex-col">
+<div class="px-4 md:px-10 lg:px-40 flex flex-1 justify-center py-5">
+<div class="layout-content-container flex flex-col max-w-[960px] flex-1">
+<header class="flex items-center justify-between whitespace-nowrap border-b border-solid border-[#f0f2f4] dark:border-gray-700 px-6 sm:px-10 py-3">
+<div class="flex items-center gap-4 text-primary">
+<div class="size-8">
+<svg fill="currentColor" viewbox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+<g clip-path="url(#clip0_6_543)">
+<path d="M42.1739 20.1739L27.8261 5.82609C29.1366 7.13663 28.3989 10.1876 26.2002 13.7654C24.8538 15.9564 22.9595 18.3449 20.6522 20.6522C18.3449 22.9595 15.9564 24.8538 13.7654 26.2002C10.1876 28.3989 7.13663 29.1366 5.82609 27.8261L20.1739 42.1739C21.4845 43.4845 24.5355 42.7467 28.1133 40.548C30.3042 39.2016 32.6927 37.3073 35 35C37.3073 32.6927 39.2016 30.3042 40.548 28.1133C42.7467 24.5355 43.4845 21.4845 42.1739 20.1739Z"></path>
+<path clip-rule="evenodd" d="M7.24189 26.4066C7.31369 26.4411 7.64204 26.5637 8.52504 26.3738C9.59462 26.1438 11.0343 25.5311 12.7183 24.4963C14.7583 23.2426 17.0256 21.4503 19.238 19.238C21.4503 17.0256 23.2426 14.7583 24.4963 12.7183C25.5311 11.0343 26.1438 9.59463 26.3738 8.52504C26.5637 7.64204 26.4411 7.31369 26.4066 7.24189C26.345 7.21246 26.143 7.14535 25.6664 7.1918C24.9745 7.25925 23.9954 7.5498 22.7699 8.14278C20.3369 9.32007 17.3369 11.4915 14.4142 14.4142C11.4915 17.3369 9.32007 20.3369 8.14278 22.7699C7.5498 23.9954 7.25925 24.9745 7.1918 25.6664C7.14534 26.143 7.21246 26.345 7.24189 26.4066ZM29.9001 10.7285C29.4519 12.0322 28.7617 13.4172 27.9042 14.8126C26.465 17.1544 24.4686 19.6641 22.0664 22.0664C19.6641 24.4686 17.1544 26.465 14.8126 27.9042C13.4172 28.7617 12.0322 29.4519 10.7285 29.9001L21.5754 40.747C21.6001 40.7606 21.8995 40.931 22.8729 40.7217C23.9424 40.4916 25.3821 39.879 27.0661 38.8441C29.1062 37.5904 31.3734 35.7982 33.5858 33.5858C35.7982 31.3734 37.5904 29.1062 38.8441 27.0661C39.879 25.3821 40.4916 23.9425 40.7216 22.8729C40.931 21.8995 40.7606 21.6001 40.747 21.5754L29.9001 10.7285ZM29.2403 4.41187L43.5881 18.7597C44.9757 20.1473 44.9743 22.1235 44.6322 23.7139C44.2714 25.3919 43.4158 27.2666 42.252 29.1604C40.8128 31.5022 38.8165 34.012 36.4142 36.4142C34.012 38.8165 31.5022 40.8128 29.1604 42.252C27.2666 43.4158 25.3919 44.2714 23.7139 44.6322C22.1235 44.9743 20.1473 44.9757 18.7597 43.5881L4.41187 29.2403C3.29027 28.1187 3.08209 26.5973 3.21067 25.2783C3.34099 23.9415 3.8369 22.4852 4.54214 21.0277C5.96129 18.0948 8.43335 14.7382 11.5858 11.5858C14.7382 8.43335 18.0948 5.9613 21.0277 4.54214C22.4852 3.8369 23.9415 3.34099 25.2783 3.21067C26.5973 3.08209 28.1187 3.29028 29.2403 4.41187Z" fill="currentColor" fill-rule="evenodd"></path>
+</g>
+<defs>
+<clippath id="clip0_6_543">
+<rect fill="white" height="48" width="48"></rect>
+</clippath>
+</defs>
+</svg>
+</div>
+<h2 class="text-xl font-bold leading-tight tracking-[-0.015em]">Khatu Shyam Enterprises</h2>
+</div>
+</header>
+<main class="flex-1 p-4 sm:p-6 bg-white dark:bg-background-dark rounded-lg mt-6">
+<div class="flex flex-wrap justify-between gap-3 pb-6">
+<p class="text-4xl font-black leading-tight tracking-[-0.033em] min-w-72">Book a Parcel</p>
+</div>
+<form id="booking-form" class="space-y-8">
+<!-- Sender Details Section -->
+<section class="space-y-6">
+<h2 class="text-2xl font-bold leading-tight tracking-[-0.015em] text-primary border-b border-[#f0f2f4] dark:border-gray-700 pb-3">Sender Details</h2>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+<label class="flex flex-col">
+<p class="text-base font-medium leading-normal pb-2">Sender's Name</p>
+<input id="sender-name" class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-[#333333] dark:text-gray-200 focus:outline-0 focus:ring-2 focus:ring-primary border border-[#dbe0e6] dark:border-gray-600 bg-white dark:bg-gray-800 focus:border-primary h-14 placeholder:text-[#617589] p-[15px] text-base font-normal leading-normal" placeholder="Enter sender's full name" type="text" required/>
+</label>
+<label class="flex flex-col">
+<p class="text-base font-medium leading-normal pb-2">Sender's Mobile Number</p>
+<input id="sender-mobile" class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-[#333333] dark:text-gray-200 focus:outline-0 focus:ring-2 focus:ring-primary border border-[#dbe0e6] dark:border-gray-600 bg-white dark:bg-gray-800 focus:border-primary h-14 placeholder:text-[#617589] p-[15px] text-base font-normal leading-normal" placeholder="Enter 10-digit mobile number" type="tel" required/>
+</label>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+<label class="flex flex-col">
+<p class="text-base font-medium leading-normal pb-2">Sender's Address</p>
+<textarea id="sender-address" class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-[#333333] dark:text-gray-200 focus:outline-0 focus:ring-2 focus:ring-primary border border-[#dbe0e6] dark:border-gray-600 bg-white dark:bg-gray-800 focus:border-primary min-h-36 placeholder:text-[#617589] p-[15px] text-base font-normal leading-normal" placeholder="Enter sender's full address" required></textarea>
+</label>
+<label class="flex flex-col">
+<p class="text-base font-medium leading-normal pb-2">Sender's PIN Code</p>
+<input id="sender-pincode" class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-[#333333] dark:text-gray-200 focus:outline-0 focus:ring-2 focus:ring-primary border border-[#dbe0e6] dark:border-gray-600 bg-white dark:bg-gray-800 focus:border-primary h-14 placeholder:text-[#617589] p-[15px] text-base font-normal leading-normal" placeholder="Enter 6-digit PIN code" type="text" required/>
+</label>
+</div>
+</section>
+<!-- Receiver Details Section -->
+<section class="space-y-6">
+<h2 class="text-2xl font-bold leading-tight tracking-[-0.015em] text-primary border-b border-[#f0f2f4] dark:border-gray-700 pb-3">Receiver Details</h2>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+<label class="flex flex-col">
+<p class="text-base font-medium leading-normal pb-2">Receiver's Name</p>
+<input id="receiver-name" class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-[#333333] dark:text-gray-200 focus:outline-0 focus:ring-2 focus:ring-primary border border-[#dbe0e6] dark:border-gray-600 bg-white dark:bg-gray-800 focus:border-primary h-14 placeholder:text-[#617589] p-[15px] text-base font-normal leading-normal" placeholder="Enter receiver's full name" type="text" required/>
+</label>
+<label class="flex flex-col">
+<p class="text-base font-medium leading-normal pb-2">Receiver's Mobile Number</p>
+<input id="receiver-mobile" class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-[#333333] dark:text-gray-200 focus:outline-0 focus:ring-2 focus:ring-primary border border-[#dbe0e6] dark:border-gray-600 bg-white dark:bg-gray-800 focus:border-primary h-14 placeholder:text-[#617589] p-[15px] text-base font-normal leading-normal" placeholder="Enter 10-digit mobile number" type="tel" required/>
+</label>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+<label class="flex flex-col">
+<p class="text-base font-medium leading-normal pb-2">Receiver's Address</p>
+<textarea id="receiver-address" class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-[#333333] dark:text-gray-200 focus:outline-0 focus:ring-2 focus:ring-primary border border-[#dbe0e6] dark:border-gray-600 bg-white dark:bg-gray-800 focus:border-primary min-h-36 placeholder:text-[#617589] p-[15px] text-base font-normal leading-normal" placeholder="Enter receiver's full address" required></textarea>
+</label>
+<label class="flex flex-col">
+<p class="text-base font-medium leading-normal pb-2">Receiver's PIN Code</p>
+<input id="receiver-pincode" class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-[#333333] dark:text-gray-200 focus:outline-0 focus:ring-2 focus:ring-primary border border-[#dbe0e6] dark:border-gray-600 bg-white dark:bg-gray-800 focus:border-primary h-14 placeholder:text-[#617589] p-[15px] text-base font-normal leading-normal" placeholder="Enter 6-digit PIN code" type="text" required/>
+</label>
+</div>
+</section>
+<!-- Parcel Details Section -->
+<section class="space-y-6">
+<h2 class="text-2xl font-bold leading-tight tracking-[-0.015em] text-primary border-b border-[#f0f2f4] dark:border-gray-700 pb-3">Parcel Details</h2>
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+<label class="flex flex-col">
+<p class="text-base font-medium leading-normal pb-2">Parcel Weight (kg)</p>
+<input id="parcel-weight" class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-[#333333] dark:text-gray-200 focus:outline-0 focus:ring-2 focus:ring-primary border border-[#dbe0e6] dark:border-gray-600 bg-white dark:bg-gray-800 focus:border-primary h-14 placeholder:text-[#617589] p-[15px] text-base font-normal leading-normal" placeholder="e.g., 2.5" step="0.1" type="number" required/>
+</label>
+<label class="flex flex-col">
+<p class="text-base font-medium leading-normal pb-2">Parcel Size (cm)</p>
+<input id="parcel-size" class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-[#333333] dark:text-gray-200 focus:outline-0 focus:ring-2 focus:ring-primary border border-[#dbe0e6] dark:border-gray-600 bg-white dark:bg-gray-800 focus:border-primary h-14 placeholder:text-[#617589] p-[15px] text-base font-normal leading-normal" placeholder="L x W x H" type="text"/>
+</label>
+<label class="flex flex-col">
+<p class="text-base font-medium leading-normal pb-2">Parcel Content Type</p>
+<select id="parcel-type" class="form-select flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-[#333333] dark:text-gray-200 focus:outline-0 focus:ring-2 focus:ring-primary border border-[#dbe0e6] dark:border-gray-600 bg-white dark:bg-gray-800 focus:border-primary h-14 p-[15px] text-base font-normal leading-normal" required>
+<option>Documents</option>
+<option>Electronics</option>
+<option>Apparel</option>
+<option>Other</option>
+</select>
+</label>
+</div>
+</section>
+
+<!-- Price Calculator Section -->
+<section id="price-calculator-section" class="space-y-6">
+    <h2 class="text-2xl font-bold leading-tight tracking-[-0.015em] text-primary border-b border-[#f0f2f4] dark:border-gray-700 pb-3">Shipping Estimate</h2>
+    <div class="flex items-center gap-4">
+        <button id="calculate-price-button" type="button" class="flex items-center justify-center gap-2 rounded-lg bg-gray-200 dark:bg-gray-700 px-6 py-3 text-center text-base font-bold text-gray-800 dark:text-white shadow-sm transition-all hover:bg-gray-300 dark:hover:bg-gray-600">
+            <span>Calculate Price</span>
+            <span class="material-symbols-outlined">calculate</span>
+        </button>
+        <div id="price-breakdown" class="text-lg font-medium"></div>
+    </div>
+</section>
+
+<!-- Payment Method Section -->
+<section class="space-y-6">
+<h2 class="text-2xl font-bold leading-tight tracking-[-0.015em] text-primary border-b border-[#f0f2f4] dark:border-gray-700 pb-3">Payment Method</h2>
+<div class="space-y-3">
+<label class="flex items-center p-4 border rounded-lg cursor-pointer hover:bg-gray-50 dark:border-gray-600 dark:hover:bg-gray-700">
+<input type="radio" name="payment" value="cod" checked class="mr-3 h-5 w-5 text-primary focus:ring-primary border-gray-300">
+<div>
+<p class="font-medium">Cash on Shipping</p>
+                <p class="text-sm text-gray-500 dark:text-gray-400">Pay when parcel is shipped</p></div>
+</label>
+<label class="flex items-center p-4 border rounded-lg cursor-pointer hover:bg-gray-50 dark:border-gray-600 dark:hover:bg-gray-700">
+<input type="radio" name="payment" value="online" class="mr-3 h-5 w-5 text-primary focus:ring-primary border-gray-300">
+<div>
+<p class="font-medium">Pay Online</p>
+<p class="text-sm text-gray-500 dark:text-gray-400">UPI, Cards, Net Banking</p>
+</div>
+</label>
+</div>
+</section>
+
+<!-- Submit Button -->
+<div class="flex justify-end pt-6">
+<button id="submit-booking-button" type="submit" class="flex items-center justify-center gap-2 w-full md:w-auto rounded-lg bg-primary px-8 py-4 text-center text-base font-bold text-white shadow-sm transition-all hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 dark:focus:ring-offset-background-dark">
+<span>Submit Booking</span>
+<span class="material-symbols-outlined">send</span>
+</button>
+</div>
+</form>
+</main>
+</div>
+</div>
+</div>
+</div>
+'''<script>
+    let bookingAmount = 100; // Default amount
+
+    // 2. Auth State Listener (for auto-filling form)
+    auth.onAuthStateChanged(async (user) => {
+        if (user) {
+            try {
+                const userRef = db.collection('users').doc(user.uid);
+                const doc = await userRef.get();
+                if (doc.exists) {
+                    const userData = doc.data();
+                    document.getElementById('sender-name').value = userData.name || '';
+                    if (user.phoneNumber) {
+                        document.getElementById('sender-mobile').value = user.phoneNumber.startsWith('+91') ? user.phoneNumber.slice(3) : user.phoneNumber;
+                    }
+                    document.getElementById('sender-address').value = userData.address || '';
+                    document.getElementById('sender-pincode').value = userData.pincode || '';
+                }
+            } catch (error) {
+                ErrorHandler.handleFirebaseError(error);
+            }
+        } else {
+            ErrorHandler.show('You must be logged in to book a parcel.', 'error');
+            setTimeout(() => { window.location.href = 'login.html'; }, 2000);
+        }
+    });
+
+    // 3. Parcel Size Input Formatter
+    const parcelSizeInput = document.getElementById('parcel-size');
+    if (parcelSizeInput) {
+        parcelSizeInput.addEventListener('input', function(e) {
+            e.target.value = e.target.value.replace(/[ .,]/g, '×');
+        });
+    }
+
+    const paymentGateway = new PaymentGateway();
+    const priceCalculator = new PriceCalculator();
+
+    // Price Calculation Logic
+    document.getElementById('calculate-price-button').addEventListener('click', async () => {
+        const pickupPincode = document.getElementById('sender-pincode').value;
+        const deliveryPincode = document.getElementById('receiver-pincode').value;
+        const weight = parseFloat(document.getElementById('parcel-weight').value);
+
+        if (!pickupPincode || !deliveryPincode || !weight) {
+            ErrorHandler.show('Please enter Sender & Receiver PIN codes and Parcel Weight to calculate the price.', 'warning');
+            return;
+        }
+
+        const priceBreakdownDiv = document.getElementById('price-breakdown');
+        priceBreakdownDiv.innerHTML = 'Calculating...';
+
+        try {
+            const pricing = await priceCalculator.calculatePrice(pickupPincode, deliveryPincode, weight);
+            if (pricing) {
+                priceBreakdownDiv.innerHTML = `
+                    <p>Distance: ${pricing.distance} km</p>
+                    <p>Base Price: ₹${pricing.basePrice}</p>
+                    <p>GST (18%): ₹${pricing.gst}</p>
+                    <h4 class="font-bold">Total: ₹${pricing.total}</h4>
+                `;
+                bookingAmount = parseFloat(pricing.total);
+            } else {
+                priceBreakdownDiv.innerHTML = 'Could not calculate price. Please check PIN codes.';
+                ErrorHandler.show('Could not calculate price. Please check PIN codes.', 'error');
+            }
+        } catch (error) {
+            priceBreakdownDiv.innerHTML = 'Error in price calculation.';
+            ErrorHandler.show(error.message || 'An error occurred during price calculation.', 'error');
+        }
+    });
+
+    const limiter = new RateLimiter(5, 60000); // 5 requests per minute
+
+    // 4. Main Form Submission Logic
+    document.getElementById('booking-form').addEventListener('submit', function(event) {
+        event.preventDefault();
+
+        const user = auth.currentUser;
+        if (!user) {
+            ErrorHandler.show("You must be logged in to book a parcel.", "error");
+            return;
+        }
+
+        const userId = user.uid;
+
+        limiter.handleRequest(userId, async () => {
+            // --- Input Validation and Sanitization ---
+            const senderName = InputValidator.sanitizeInput(document.getElementById('sender-name').value);
+            const senderMobile = document.getElementById('sender-mobile').value;
+            const senderAddress = InputValidator.sanitizeInput(document.getElementById('sender-address').value);
+            const senderPincode = document.getElementById('sender-pincode').value;
+
+            const receiverName = InputValidator.sanitizeInput(document.getElementById('receiver-name').value);
+            const receiverMobile = document.getElementById('receiver-mobile').value;
+            const receiverAddress = InputValidator.sanitizeInput(document.getElementById('receiver-address').value);
+            const receiverPincode = document.getElementById('receiver-pincode').value;
+
+            const parcelWeight = document.getElementById('parcel-weight').value;
+
+            if (!senderName || !senderAddress || !receiverName || !receiverAddress || !parcelWeight) {
+                ErrorHandler.show('Please fill out all required fields.', 'error');
+                return;
+            }
+            if (!InputValidator.validatePhone(senderMobile)) {
+                ErrorHandler.show('Invalid Sender Mobile Number.', 'error');
+                return;
+            }
+            if (!InputValidator.validatePincode(senderPincode)) {
+                ErrorHandler.show('Invalid Sender PIN Code.', 'error');
+                return;
+            }
+            if (!InputValidator.validatePhone(receiverMobile)) {
+                ErrorHandler.show('Invalid Receiver Mobile Number.', 'error');
+                return;
+            }
+            if (!InputValidator.validatePincode(receiverPincode)) {
+                ErrorHandler.show('Invalid Receiver PIN Code.', 'error');
+                return;
+            }
+
+
+            const bookingId = `KS-${Date.now()}`;
+
+            const bookingData = {
+                userId: user.uid,
+                bookingId: bookingId,
+                senderDetails: {
+                    name: senderName,
+                    mobile: senderMobile,
+                    address: senderAddress,
+                    pincode: senderPincode,
+                },
+                receiverDetails: {
+                    name: receiverName,
+                    mobile: receiverMobile,
+                    address: receiverAddress,
+                    pincode: receiverPincode,
+                },
+                parcelDetails: {
+                    weight: parcelWeight,
+                    size: InputValidator.sanitizeInput(document.getElementById('parcel-size').value),
+                    type: document.getElementById('parcel-type').value,
+                },
+                bookingDate: firebase.firestore.FieldValue.serverTimestamp(),
+                status: 'Booked',
+                amount: bookingAmount,
+                paymentMethod: document.querySelector('input[name="payment"]:checked').value,
+                paymentStatus: 'pending'
+            };
+
+            if (bookingData.paymentMethod === 'online') {
+                await paymentGateway.initiatePayment(bookingData);
+            } else { // Cash on Shipping
+                bookingData.paymentStatus = 'cos';
+                await saveBooking(bookingData);
+            }
+        });
+    });
+
+    // 5. saveBooking Helper Function
+    async function saveBooking(bookingData) {
+        try {
+            const docRef = await db.collection("bookings").add(bookingData);
+            console.log("Document written with ID: ", docRef.id);
+            ErrorHandler.show(`Booking successful! Your Booking ID is ${bookingData.bookingId}`, 'success');
+            setTimeout(() => { window.location.href = 'dashboard.html'; }, 3000);
+        } catch (error) {
+            ErrorHandler.handleFirebaseError(error);
+        }
+    }
+</script>'''
+</body></html>

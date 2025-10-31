@@ -1,0 +1,592 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Khatu Shyam Enterprises - Dashboard</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Work+Sans:wght @400;500;600;700;800;900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet"/>
+    <link href="loading-skeleton.css" rel="stylesheet"/>
+    <link href="toast.css" rel="stylesheet"/>
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+    <!-- Firebase Init -->
+    <script src="firebase-init.js"></script>
+    <script src="error-handler.js"></script>
+<script>
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#1A237E",
+                        "secondary": "#FFA726",
+                        "background-light": "#F5F5F5",
+                        "background-dark": "#101922",
+                        "booked": "#2196F3",
+                        "in-transit": "#FB8C00",
+                        "delivered": "#4CAF50"
+                    },
+                    fontFamily: {
+                        "display": ["Work Sans", "sans-serif"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                },
+            },
+        };
+    </script>
+<style>
+        .text-delivered { color: #4CAF50; }
+        .bg-delivered\/20 { background-color: rgba(76, 175, 80, 0.2); }
+        .text-in-transit { color: #FB8C00; }
+        .bg-in-transit\/20 { background-color: rgba(251, 140, 0, 0.2); }
+        .text-booked { color: #2196F3; }
+        .bg-booked\/20 { background-color: rgba(33, 150, 243, 0.2); }
+
+         @keyframes slide-in {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+         @keyframes slide-out {
+            from { transform: translateX(0); opacity: 1; }
+            to { transform: translateX(100%); opacity: 0; }
+        }
+        .animate-slide-in { animation: slide-in 0.3s ease-out; }
+        .animate-slide-out { animation: slide-out 0.3s ease-in; }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark font-display"><div class="relative flex h-auto min-h-screen w-full flex-col group/design-root overflow-x-hidden">
+<div class="layout-container flex h-full grow flex-col">
+<header class="flex items-center justify-between whitespace-nowrap border-b border-solid border-gray-200 dark:border-gray-700 px-4 sm:px-10 py-3 bg-white dark:bg-background-dark">
+    <div class="flex items-center gap-4 text-primary">
+        <span class="material-symbols-outlined text-3xl">local_shipping</span>
+        <h2 class="text-xl font-bold leading-tight tracking-[-0.015em]">Khatu Shyam Enterprises</h2>
+    </div>
+    <div class="hidden md:flex flex-1 justify-end gap-8 items-center">
+        <div class="flex items-center gap-9">
+            <a class="text-gray-800 dark:text-gray-200 text-sm font-medium leading-normal" href="#">Dashboard</a>
+            <a class="text-gray-800 dark:text-gray-200 text-sm font-medium leading-normal" href="book_parcel.html">New Booking</a>
+            <a class="text-gray-800 dark:text-gray-200 text-sm font-medium leading-normal" href="profile.html">Profile</a>
+        </div>
+        <div class="flex items-center gap-4">
+            
+            <button id="logout-button" class="flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 bg-primary text-white text-sm font-bold leading-normal tracking-[0.015em]">
+                <span class="truncate">Logout</span>
+            </button>
+        </div>
+    </div>
+    <div class="md:hidden">
+        <button id="mobile-menu-button" class="p-2 rounded-md text-gray-700 dark:text-gray-300">
+            <span class="material-symbols-outlined">menu</span>
+        </button>
+    </div>
+</header>
+<div id="mobile-menu" class="hidden md:hidden bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
+    <a href="#" class="block py-2 px-4 text-sm text-gray-700 dark:text-gray-300">Dashboard</a>
+    <a href="book_parcel.html" class="block py-2 px-4 text-sm text-gray-700 dark:text-gray-300">New Booking</a>
+    <a href="profile.html" class="block py-2 px-4 text-sm text-gray-700 dark:text-gray-300">Profile</a>
+    <div class="border-t border-gray-200 dark:border-gray-700 py-2 px-4">
+        <div class="flex items-center gap-4">
+            
+        </div>
+        <button id="mobile-logout-button" class="mt-2 w-full flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 bg-primary text-white text-sm font-bold leading-normal tracking-[0.015em]">
+            <span class="truncate">Logout</span>
+        </button>
+    </div>
+</div>
+<main class="px-4 sm:px-10 py-5 flex-1">
+<div class="layout-content-container flex flex-col max-w-7xl mx-auto">
+<div class="flex flex-wrap justify-between items-center gap-4 p-4">
+<p class="text-gray-900 dark:text-white text-4xl font-black leading-tight tracking-[-0.033em] min-w-72">Your Parcel Bookings</p>
+<a href="book_parcel.html" class="flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-12 px-6 bg-secondary text-white text-base font-bold leading-normal tracking-[0.015em] shadow-md hover:shadow-lg transition-shadow">
+<span class="truncate">Book New Parcel</span>
+</a>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-4 px-4 py-3">
+<label class="flex flex-col min-w-40 h-12 w-full">
+<div class="flex w-full flex-1 items-stretch rounded-lg h-full bg-white dark:bg-gray-800 shadow-sm">
+<div class="text-gray-500 dark:text-gray-400 flex items-center justify-center pl-4">
+<span class="material-symbols-outlined">search</span>
+</div>
+<input id="search-input" class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-r-lg text-gray-900 dark:text-white focus:outline-0 focus:ring-0 border-none bg-transparent h-full placeholder:text-gray-500 dark:placeholder:text-gray-400 px-4 text-base font-normal leading-normal" placeholder="Search by Booking ID or Destination" value=""/>
+</div>
+</label>
+<div id="filter-buttons" class="flex flex-wrap gap-3 justify-end items-center">
+<button data-filter="All" class="filter-btn flex h-10 items-center justify-center gap-x-2 rounded-lg px-4 shadow-sm bg-primary text-white">
+<p class="text-sm font-medium leading-normal">All</p>
+</button>
+<button data-filter="Booked" class="filter-btn flex h-10 items-center justify-center gap-x-2 rounded-lg bg-white dark:bg-gray-800 px-4 shadow-sm text-gray-800 dark:text-gray-200">
+<p class="text-sm font-medium leading-normal">Booked</p>
+</button>
+<button data-filter="In Transit" class="filter-btn flex h-10 items-center justify-center gap-x-2 rounded-lg bg-white dark:bg-gray-800 px-4 shadow-sm text-gray-800 dark:text-gray-200">
+<p class="text-sm font-medium leading-normal">In Transit</p>
+</button>
+<button data-filter="Delivered" class="filter-btn flex h-10 items-center justify-center gap-x-2 rounded-lg bg-white dark:bg-gray-800 px-4 shadow-sm text-gray-800 dark:text-gray-200">
+<p class="text-sm font-medium leading-normal">Delivered</p>
+</button>
+</div>
+</div>
+<div class="px-4 py-3">
+<!-- Desktop Table View -->
+<div class="hidden md:block overflow-hidden rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-md">
+<table class="w-full">
+<thead class="bg-gray-50 dark:bg-gray-700">
+<tr>
+<th class="px-6 py-4 text-left text-sm font-bold text-gray-600 dark:text-gray-300 uppercase tracking-wider">Booking ID</th>
+<th class="px-6 py-4 text-left text-sm font-bold text-gray-600 dark:text-gray-300 uppercase tracking-wider">Booking Date</th>
+<th class="px-6 py-4 text-left text-sm font-bold text-gray-600 dark:text-gray-300 uppercase tracking-wider">Destination</th>
+<th class="px-6 py-4 text-left text-sm font-bold text-gray-600 dark:text-gray-300 uppercase tracking-wider">Current Status</th>
+<th class="px-6 py-4 text-left text-sm font-bold text-gray-600 dark:text-gray-300 uppercase tracking-wider">Payment Status</th>
+<th class="px-6 py-4 text-left text-sm font-bold text-gray-600 dark:text-gray-300 uppercase tracking-wider">Action</th>
+</tr>
+</thead>
+<tbody id="bookings-table-body" class="divide-y divide-gray-200 dark:divide-gray-700">
+<!-- Dynamic content will be loaded here -->
+</tbody>
+</table>
+</div>
+<!-- Mobile Card View -->
+<div id="bookings-card-view" class="md:hidden grid grid-cols-1 sm:grid-cols-2 gap-4">
+    <!-- Mobile data will be loaded here by JavaScript -->
+</div>
+</div>
+</div>
+</main>
+
+        <!-- Booking Detail Modal -->
+        <div id="booking-modal" class="fixed inset-0 bg-black bg-opacity-50 z-30 hidden items-center justify-center p-4">
+            <div id="modal-content" class="bg-white dark:bg-gray-800 rounded-xl shadow-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto transform transition-transform duration-300 scale-95">
+                <div class="flex justify-between items-center p-4 border-b border-gray-200 dark:border-gray-700 sticky top-0 bg-white dark:bg-gray-800 z-10">
+                    <h2 class="text-xl font-bold text-primary dark:text-white">Booking Details</h2>
+                    <button id="modal-close-button" class="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700">
+                        <span class="material-symbols-outlined">close</span>
+                    </button>
+                </div>
+                <div id="modal-body" class="p-6 space-y-4">
+                    <!-- Dynamic content will be injected here -->
+                </div>
+            </div>
+        </div>
+<footer class="bg-white dark:bg-background-dark border-t border-gray-200 dark:border-gray-700 mt-10">
+<div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
+<div class="flex justify-between items-center text-sm text-gray-500 dark:text-gray-400">
+<p>© 2023 Khatu Shyam Enterprises. All rights reserved.</p>
+<div class="flex gap-6">
+<a class="hover:text-gray-900 dark:hover:text-white" href="#">Contact</a>
+<a class="hover:text-gray-900 dark:hover:text-white" href="#">Help/Support</a>
+<a class="hover:text-gray-900 dark:hover:text-white" href="#">Terms of Service</a>
+<a class="hover:text-gray-900 dark:hover:text-white" href="#">Privacy Policy</a>
+<a href="admin.html" class="hover:text-gray-900 dark:hover:text-white">Admin Panel</a>
+</div>
+</div>
+</div>
+        <!-- Profile Update Modal -->
+        <div id="profile-update-modal" class="fixed inset-0 bg-black bg-opacity-50 z-40 hidden items-center justify-center p-4">
+            <div class="bg-white dark:bg-gray-800 rounded-xl shadow-2xl w-full max-w-md text-center p-6 sm:p-8">
+                <div class="flex justify-center mb-4">
+                    <span class="material-symbols-outlined text-6xl text-primary dark:text-secondary">account_circle</span>
+                </div>
+                <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-2">Complete Your Profile</h2>
+                <p class="text-gray-600 dark:text-gray-300 mb-6">Please update your profile with your name and address to make booking parcels faster and easier.</p>
+                <a href="profile.html" class="flex items-center justify-center gap-2 h-12 px-6 rounded-lg bg-primary text-white text-base font-bold tracking-wide transition-colors hover:bg-primary/90">
+                    Go to Profile
+                </a>
+            </div>
+        </div>
+
+        <!-- Repayment QR Code Modal -->
+        <div id="repayment-qr-modal" class="fixed inset-0 bg-black bg-opacity-50 z-40 hidden items-center justify-center p-4">
+            <div class="bg-white dark:bg-gray-800 rounded-xl shadow-2xl w-full max-w-sm text-center p-6 sm:p-8 relative">
+                <button id="repayment-modal-close-button" class="absolute top-2 right-2 p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700">
+                    <span class="material-symbols-outlined">close</span>
+                </button>
+                <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-4">Complete Your Payment</h2>
+                <p class="text-gray-600 dark:text-gray-300 mb-4">Scan the QR code below with any UPI app to complete the payment for your booking.</p>
+                <div id="repayment-qr-container" class="flex justify-center p-4 bg-white rounded-lg">
+                    <!-- QR Code will be injected here -->
+                </div>
+                <div class="mt-4">
+                    <p class="text-gray-500 dark:text-gray-400">Booking ID: <span id="repayment-booking-id" class="font-bold"></span></p>
+                    <p class="text-lg font-bold">Amount: ₹<span id="repayment-amount"></span></p>
+                </div>
+            </div>
+        </div>
+</footer>
+</div>
+</div>
+<style>
+        .text-delivered { color: #4CAF50; }
+        .bg-delivered\/20 { background-color: rgba(76, 175, 80, 0.2); }
+        .text-in-transit { color: #FB8C00; }
+        .bg-in-transit\/20 { background-color: rgba(251, 140, 0, 0.2); }
+        .text-booked { color: #2196F3; }
+        .bg-booked\/20 { background-color: rgba(33, 150, 243, 0.2); }
+    </style>
+<script>
+    function showBookingSkeleton() {
+        const skeletonRow = `
+            <tr>
+                <td class="px-6 py-4"><div class="skeleton skeleton-text w-3/4"></div></td>
+                <td class="px-6 py-4"><div class="skeleton skeleton-text w-1/2"></div></td>
+                <td class="px-6 py-4"><div class="skeleton skeleton-text w-full"></div></td>
+                <td class="px-6 py-4"><div class="skeleton skeleton-text w-20 h-6 rounded-full"></div></td>
+                <td class="px-6 py-4"><div class="skeleton skeleton-text w-1/2"></div></td>
+                <td class="px-6 py-4"><div class="skeleton skeleton-text w-24 h-6"></div></td>
+            </tr>
+        `.repeat(5);
+
+        const skeletonCard = `
+            <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-4 space-y-3">
+                <div class="flex justify-between items-start">
+                    <div class="skeleton skeleton-text w-1/4"></div>
+                    <div class="skeleton skeleton-text w-20 h-6 rounded-full"></div>
+                </div>
+                <div class="space-y-2">
+                    <div class="skeleton skeleton-text w-full"></div>
+                    <div class="skeleton skeleton-text w-1/2"></div>
+                </div>
+                <div class="skeleton skeleton-text w-1/3 mt-2"></div>
+            </div>
+        `.repeat(4);
+
+        bookingsTableBody.innerHTML = skeletonRow;
+        bookingsCardView.innerHTML = skeletonCard;
+    }
+
+    // --- GLOBAL STATE ---
+    let allBookings = [];
+    let currentFilter = 'All';
+    let currentSearchTerm = '';
+
+    // --- ELEMENTS ---
+    const logoutButton = document.getElementById('logout-button');
+    const bookingsTableBody = document.getElementById('bookings-table-body');
+    const bookingsCardView = document.getElementById('bookings-card-view');
+    const mobileMenuButton = document.getElementById('mobile-menu-button');
+    const mobileMenu = document.getElementById('mobile-menu');
+    const mobileLogoutButton = document.getElementById('mobile-logout-button');
+    const searchInput = document.getElementById('search-input');
+    const filterButtonsContainer = document.getElementById('filter-buttons');
+
+    // --- AUTHENTICATION & INITIAL LOAD ---
+    window.addEventListener('DOMContentLoaded', () => {
+        auth.onAuthStateChanged(async (user) => {
+            if (!user) {
+                window.location.href = 'login.html';
+                return;
+            }
+
+            showBookingSkeleton(); // Show skeleton UI immediately
+
+            try {
+                const userDoc = await db.collection('users').doc(user.uid).get();
+
+                if (!userDoc.exists) {
+                    ErrorHandler.show('User data not found. Please contact support.', 'error');
+                    auth.signOut();
+                    window.location.href = 'login.html';
+                    return;
+                }
+
+                const userData = userDoc.data();
+                console.log('User logged in:', userData);
+
+
+
+                if (!userData.name || !userData.address) {
+                    const profileUpdateModal = document.getElementById('profile-update-modal');
+                    if (profileUpdateModal) {
+                        profileUpdateModal.classList.remove('hidden');
+                        profileUpdateModal.classList.add('flex');
+                    }
+                }
+
+                await loadBookings(user.uid);
+
+            } catch (error) {
+                ErrorHandler.handleFirebaseError(error);
+            }
+        });
+    });
+
+    async function loadBookings(userId) {
+        try {
+            const querySnapshot = await db.collection('bookings').where('userId', '==', userId).orderBy('bookingDate', 'desc').get();
+            allBookings = [];
+            querySnapshot.forEach((doc) => {
+                allBookings.push({ id: doc.id, ...doc.data() });
+            });
+            applyFiltersAndSearch();
+        } catch (error) {
+            ErrorHandler.handleFirebaseError(error);
+            const errorHtml = `<div class="text-center py-10 text-red-500 col-span-full">Error loading bookings.</div>`;
+            bookingsTableBody.innerHTML = `<tr><td colspan="6" class="text-center py-10 text-red-500">Error loading bookings.</td></tr>`;
+            bookingsCardView.innerHTML = errorHtml;
+        }
+    }
+
+    // --- RENDERING & FILTERING LOGIC ---
+    function applyFiltersAndSearch() {
+        let bookingsToRender = [...allBookings];
+
+        // Apply status filter
+        if (currentFilter !== 'All') {
+            bookingsToRender = bookingsToRender.filter(b => b.status === currentFilter);
+        }
+
+        // Apply search term
+        if (currentSearchTerm) {
+            const searchTerm = currentSearchTerm.toLowerCase();
+            bookingsToRender = bookingsToRender.filter(b =>
+                (b.bookingId && b.bookingId.toLowerCase().includes(searchTerm)) ||
+                (b.receiverDetails.address && b.receiverDetails.address.toLowerCase().includes(searchTerm)) ||
+                (b.receiverDetails.pincode && b.receiverDetails.pincode.toLowerCase().includes(searchTerm))
+            );
+        }
+
+        renderBookings(bookingsToRender);
+    }
+
+    function renderBookings(bookings) {
+        bookingsTableBody.innerHTML = '';
+        bookingsCardView.innerHTML = '';
+
+        if (bookings.length === 0) {
+            const noDataHtml = `<div class="text-center py-10 col-span-full">No bookings match your criteria.</div>`;
+            bookingsTableBody.innerHTML = `<tr><td colspan="6" class="text-center py-10">No bookings match your criteria.</td></tr>`;
+            bookingsCardView.innerHTML = noDataHtml;
+            return;
+        }
+
+        bookings.forEach(booking => {
+            const bookingDate = booking.bookingDate ? booking.bookingDate.toDate().toLocaleDateString() : 'Processing...';
+            const statusClass = getStatusClass(booking.status);
+
+            // Payment Status Styling
+            let paymentStatusHtml = '';
+            const paymentStatus = booking.paymentStatus || 'N/A';
+            switch (paymentStatus.toLowerCase()) {
+                case 'paid':
+                    paymentStatusHtml = `<span class="font-medium text-green-500">Paid</span>`;
+                    break;
+                case 'cos':
+                    paymentStatusHtml = `<span class="font-medium text-green-500">Cash on Shipping</span>`;
+                    break;
+                case 'pending':
+                    paymentStatusHtml = `<button class="repay-btn font-medium text-yellow-500 hover:underline cursor-pointer" data-booking-id="${booking.bookingId}" data-amount="${booking.amount || 0}">Pending</button>`;
+                    break;
+                default:
+                    paymentStatusHtml = `<span class="font-medium text-gray-500">${paymentStatus.charAt(0).toUpperCase() + paymentStatus.slice(1)}</span>`;
+            }
+
+            const row = `
+                <tr>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white">${booking.bookingId}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">${bookingDate}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">${booking.receiverDetails.address}, ${booking.receiverDetails.pincode}</td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <span class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${statusClass}">${booking.status}</span>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm">${paymentStatusHtml}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                        <a class="view-details-btn text-primary hover:text-primary-dark dark:text-secondary dark:hover:text-secondary-light flex items-center gap-1" href="#" data-booking-id="${booking.id}">
+                            View Details <span class="material-symbols-outlined text-lg">visibility</span>
+                        </a>
+                    </td>
+                </tr>
+            `;
+            bookingsTableBody.innerHTML += row;
+
+            const card = `
+                <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-4 space-y-3">
+                    <div class="flex justify-between items-start">
+                        <div class="font-bold text-primary dark:text-secondary text-sm">${booking.bookingId}</div>
+                        <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${statusClass}">${booking.status}</span>
+                    </div>
+                    <div class="text-sm">
+                        <p class="text-gray-600 dark:text-gray-300">To: ${booking.receiverDetails.address}, ${booking.receiverDetails.pincode}</p>
+                        <p class="text-gray-600 dark:text-gray-300">Payment: ${paymentStatusHtml}</p>
+                    </div>
+                    <div class="text-xs text-gray-400 dark:text-gray-500 pt-2 border-t border-gray-200 dark:border-gray-700">
+                        Booked on: ${bookingDate}
+                    </div>
+                    <a class="view-details-btn text-primary hover:text-primary-dark dark:text-secondary dark:hover:text-secondary-light flex items-center gap-1 text-sm font-medium pt-2" href="#" data-booking-id="${booking.id}">
+                        View Details <span class="material-symbols-outlined text-base">visibility</span>
+                    </a>
+                </div>
+            `;
+            bookingsCardView.innerHTML += card;
+        });
+    }
+
+    function getStatusClass(status) {
+        switch (status) {
+            case 'Delivered': return 'bg-delivered/20 text-delivered';
+            case 'In Transit': return 'bg-in-transit/20 text-in-transit';
+            case 'Booked': default: return 'bg-booked/20 text-booked';
+        }
+    }
+
+    // --- REPAYMENT LOGIC ---
+    const VPA = '123123xxx42@axl';
+    const PAYEE_NAME = 'Khatu Shyam Enterprises';
+    const repaymentModal = document.getElementById('repayment-qr-modal');
+    const repaymentModalClose = document.getElementById('repayment-modal-close-button');
+
+    document.body.addEventListener('click', function(event) {
+        const repayBtn = event.target.closest('.repay-btn');
+        if (repayBtn) {
+            event.preventDefault();
+            const bookingId = repayBtn.dataset.bookingId;
+            const amount = repayBtn.dataset.amount;
+
+            if (!bookingId || !amount || amount === '0') {
+                ErrorHandler.show('Could not initiate payment. Amount is zero or data is missing.', 'error');
+                return;
+            }
+
+            const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+            const upiString = `upi://pay?pa=${VPA}&pn=${encodeURIComponent(PAYEE_NAME)}&am=${amount}&cu=INR&tn=${bookingId}`;
+
+            if (isMobile) {
+                // On mobile, redirect to UPI app
+                window.location.href = upiString;
+            } else {
+                // On desktop, show QR code modal
+                const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(upiString)}`;
+                document.getElementById('repayment-qr-container').innerHTML = `<img src="${qrCodeUrl}" alt="UPI QR Code">`;
+                document.getElementById('repayment-booking-id').textContent = bookingId;
+                document.getElementById('repayment-amount').textContent = amount;
+                repaymentModal.classList.remove('hidden');
+                repaymentModal.classList.add('flex');
+            }
+        }
+    });
+
+    repaymentModalClose.addEventListener('click', () => {
+        repaymentModal.classList.add('hidden');
+        repaymentModal.classList.remove('flex');
+    });
+
+    repaymentModal.addEventListener('click', (e) => {
+        if (e.target === repaymentModal) {
+            repaymentModal.classList.add('hidden');
+            repaymentModal.classList.remove('flex');
+        }
+    });
+
+    // --- MODAL ELEMENTS ---
+    const modal = document.getElementById('booking-modal');
+    const modalContent = document.getElementById('modal-content');
+    const modalBody = document.getElementById('modal-body');
+    const modalCloseButton = document.getElementById('modal-close-button');
+
+    // --- MODAL FUNCTIONS ---
+    function showBookingModal(bookingId) {
+        const booking = allBookings.find(b => b.id === bookingId);
+        if (!booking) return;
+
+        const bookingDate = booking.bookingDate ? booking.bookingDate.toDate().toLocaleString() : 'N/A';
+
+        modalBody.innerHTML = `
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="space-y-2">
+                    <h3 class="font-bold text-lg border-b border-gray-200 dark:border-gray-700 pb-1">Sender Details</h3>
+                    <p><strong>Name:</strong> ${booking.senderDetails.name}</p>
+                    <p><strong>Mobile:</strong> ${booking.senderDetails.mobile}</p>
+                    <p><strong>Pincode:</strong> ${booking.senderDetails.pincode}</p>
+                    <p><strong>Address:</strong> ${booking.senderDetails.address}</p>
+                </div>
+                <div class="space-y-2">
+                    <h3 class="font-bold text-lg border-b border-gray-200 dark:border-gray-700 pb-1">Receiver Details</h3>
+                    <p><strong>Name:</strong> ${booking.receiverDetails.name}</p>
+                    <p><strong>Mobile:</strong> ${booking.receiverDetails.mobile}</p>
+                    <p><strong>Pincode:</strong> ${booking.receiverDetails.pincode}</p>
+                    <p><strong>Address:</strong> ${booking.receiverDetails.address}</p>
+                </div>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4">
+                <div class="space-y-2">
+                    <h3 class="font-bold text-lg border-b border-gray-200 dark:border-gray-700 pb-1">Parcel Details</h3>
+                    <p><strong>Weight:</strong> ${booking.parcelDetails.weight} kg</p>
+                    <p><strong>Type:</strong> ${booking.parcelDetails.type}</p>
+                </div>
+                <div class="space-y-2">
+                    <h3 class="font-bold text-lg border-b border-gray-200 dark:border-gray-700 pb-1">Booking Info</h3>
+                    <p><strong>Booking ID:</strong> ${booking.bookingId}</p>
+                    <p><strong>Status:</strong> ${booking.status}</p>
+                    <p><strong>Date:</strong> ${bookingDate}</p>
+                </div>
+            </div>
+        `;
+
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+        setTimeout(() => modalContent.classList.remove('scale-95'), 50);
+    }
+
+    function hideBookingModal() {
+        modalContent.classList.add('scale-95');
+        setTimeout(() => {
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+        }, 300);
+    }
+
+    // --- EVENT LISTENERS ---
+    function handleLogout() {
+        auth.signOut().then(() => { window.location.href = 'index.html'; });
+    }
+
+    logoutButton.addEventListener('click', handleLogout);
+    mobileLogoutButton.addEventListener('click', handleLogout);
+
+    mobileMenuButton.addEventListener('click', () => {
+        mobileMenu.classList.toggle('hidden');
+    });
+
+    filterButtonsContainer.addEventListener('click', (e) => {
+        const filterBtn = e.target.closest('.filter-btn');
+        if (filterBtn) {
+            currentFilter = filterBtn.dataset.filter;
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                btn.classList.remove('bg-primary', 'text-white');
+                btn.classList.add('bg-white', 'dark:bg-gray-800', 'text-gray-800', 'dark:text-gray-200');
+            });
+            filterBtn.classList.add('bg-primary', 'text-white');
+            filterBtn.classList.remove('bg-white', 'dark:bg-gray-800', 'text-gray-800', 'dark:text-gray-200');
+            applyFiltersAndSearch();
+        }
+    });
+
+    searchInput.addEventListener('input', (e) => {
+        currentSearchTerm = e.target.value;
+        applyFiltersAndSearch();
+    });
+
+    modalCloseButton.addEventListener('click', hideBookingModal);
+    modal.addEventListener('click', (e) => {
+        if (e.target === modal) { 
+            hideBookingModal();
+        }
+    });
+
+    document.body.addEventListener('click', function(event) {
+        const viewButton = event.target.closest('.view-details-btn');
+        if (viewButton) {
+            event.preventDefault();
+            const bookingId = viewButton.dataset.bookingId;
+            showBookingModal(bookingId);
+        }
+    });
+
+</script>
+</body></html>

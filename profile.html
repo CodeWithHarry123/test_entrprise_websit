@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>User Profile - Khatu Shyam Enterprises</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Work+Sans:wght@400;500;600;700;800;900&amp;display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet" />
+    <link href="responsive.css" rel="stylesheet"/>
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+    <!-- Firebase Init -->
+    <script src="firebase-init.js"></script>
+    <script>
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#1A237E",
+                        "secondary": "#FFA726",
+                        "background-light": "#F5F5F5",
+                        "background-dark": "#101922",
+                    },
+                    fontFamily: {
+                        "display": ["Work Sans", "sans-serif"]
+                    },
+                },
+            },
+        };
+    </script>
+    <style>
+         @keyframes slide-in {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+         @keyframes slide-out {
+            from { transform: translateX(0); opacity: 1; }
+            to { transform: translateX(100%); opacity: 0; }
+        }
+        .animate-slide-in { animation: slide-in 0.3s ease-out; }
+        .animate-slide-out { animation: slide-out 0.3s ease-in; }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark font-display">
+    <div id="toast-container" class="fixed top-4 right-4 z-50 space-y-2"></div>
+    <div class="relative flex h-auto min-h-screen w-full flex-col group/design-root overflow-x-hidden">
+        <div class="layout-container flex h-full grow flex-col">
+            <header class="flex items-center justify-between whitespace-nowrap border-b border-solid border-gray-200 dark:border-gray-700 px-4 sm:px-10 py-3 bg-white dark:bg-background-dark">
+                <div class="flex items-center gap-4 text-primary">
+                    <span class="material-symbols-outlined text-3xl">local_shipping</span>
+                    <h2 class="text-xl font-bold leading-tight tracking-[-0.015em]">Khatu Shyam Enterprises</h2>
+                </div>
+                <div class="hidden md:flex flex-1 justify-end gap-8 items-center">
+                    <div class="flex items-center gap-9">
+                        <a class="text-gray-800 dark:text-gray-200 text-sm font-medium leading-normal" href="dashboard.html">Dashboard</a>
+                        <a class="text-gray-800 dark:text-gray-200 text-sm font-medium leading-normal" href="book_parcel.html">New Booking</a>
+                        <a class="text-primary dark:text-secondary text-sm font-bold leading-normal" href="profile.html">Profile</a>
+                    </div>
+                    <div class="flex items-center gap-4">
+                        
+                        <button id="logout-button" class="flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 bg-primary text-white text-sm font-bold leading-normal tracking-[0.015em]">
+                            <span class="truncate">Logout</span>
+                        </button>
+                    </div>
+                </div>
+                <div class="md:hidden">
+                    <button id="mobile-menu-button" class="p-2 rounded-md text-gray-700 dark:text-gray-300">
+                        <span class="material-symbols-outlined">menu</span>
+                    </button>
+                </div>
+            </header>
+            <div id="mobile-menu" class="hidden md:hidden bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
+                <a href="dashboard.html" class="block py-2 px-4 text-sm text-gray-700 dark:text-gray-300">Dashboard</a>
+                <a href="book_parcel.html" class="block py-2 px-4 text-sm text-gray-700 dark:text-gray-300">New Booking</a>
+                <a href="profile.html" class="block py-2 px-4 text-sm text-primary dark:text-secondary font-bold">Profile</a>
+                <div class="border-t border-gray-200 dark:border-gray-700 py-2 px-4">
+                    <div class="flex items-center gap-4">
+                        
+                    </div>
+                    <button id="mobile-logout-button" class="mt-2 w-full flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 bg-primary text-white text-sm font-bold leading-normal tracking-[0.015em]">
+                        <span class="truncate">Logout</span>
+                    </button>
+                </div>
+            </div>
+            <main class="px-4 sm:px-10 py-10 flex-1">
+                <div class="max-w-3xl mx-auto">
+                    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden">
+                        <div class="p-6 sm:p-8">
+                            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between">
+                                <div class="flex items-center gap-4">
+                                    <div class="relative inline-flex items-center justify-center w-16 h-16 sm:w-20 sm:h-20 overflow-hidden bg-primary rounded-full">
+                                        <span id="user-avatar-initial" class="font-medium text-white text-3xl sm:text-4xl"></span>
+                                    </div>
+                                    <div>
+                                        <h1 id="display-name" class="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white"></h1>
+                                        <p id="user-phone" class="text-sm text-gray-500 dark:text-gray-400"></p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="border-t border-gray-200 dark:border-gray-700 p-6 sm:p-8 space-y-6">
+                            <h2 class="text-xl font-bold text-gray-900 dark:text-white">Edit Profile</h2>
+                            <div>
+                                <label for="name-input" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Full Name</label>
+                                <input type="text" id="name-input" class="mt-1 block w-full rounded-lg border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:border-primary focus:ring-primary" placeholder="Enter your full name">
+                            </div>
+                            <div>
+                                <label for="address-input" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Address</label>
+                                <textarea id="address-input" class="mt-1 block w-full rounded-lg border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:border-primary focus:ring-primary" placeholder="Enter your full address"></textarea>
+                            </div>
+                            <div>
+                                <label for="pincode-input" class="block text-sm font-medium text-gray-700 dark:text-gray-300">PIN Code</label>
+                                <input type="text" id="pincode-input" class="mt-1 block w-full rounded-lg border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:border-primary focus:ring-primary" placeholder="Enter your 6-digit PIN code">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Phone Number</label>
+                                <p id="phone-number-display" class="mt-1 text-gray-500 dark:text-gray-400"></p>
+                            </div>
+                             <div>
+                                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Member Since</label>
+                                <p id="member-since-display" class="mt-1 text-gray-500 dark:text-gray-400"></p>
+                            </div>
+                            <div class="flex justify-end">
+                                <button id="save-profile-button" class="flex items-center justify-center gap-2 h-10 px-6 rounded-lg bg-primary text-white text-sm font-bold tracking-wide transition-colors hover:bg-primary/90">
+                                    Save Changes
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </main>
+            <footer class="bg-white dark:bg-background-dark border-t border-gray-200 dark:border-gray-700 mt-10">
+                <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
+                    <div class="flex justify-between items-center text-sm text-gray-500 dark:text-gray-400">
+                        <p>&copy; 2023 Khatu Shyam Enterprises. All rights reserved.</p>
+                        <div class="flex gap-6">
+                            <a class="hover:text-gray-900 dark:hover:text-white" href="#">Contact</a>
+                            <a class="hover:text-gray-900 dark:hover:text-white" href="#">Help/Support</a>
+                            <a class="hover:text-gray-900 dark:hover:text-white" href="#">Terms of Service</a>
+                            <a class="hover:text-gray-900 dark:hover:text-white" href="#">Privacy Policy</a>
+                            <a href="admin.html" class="hover:text-gray-900 dark:hover:text-white">Admin Panel</a>
+                        </div>
+                    </div>
+                </div>
+            </footer>
+        </div>
+    </div>
+    <script>
+        function showToast(message, type = 'info') {
+            const container = document.getElementById('toast-container');
+            
+            const colors = {
+                success: 'bg-green-500',
+                error: 'bg-red-500',
+                warning: 'bg-yellow-500',
+                info: 'bg-blue-500'
+            };
+            
+            const icons = {
+                success: '✓',
+                error: '✗',
+                warning: '⚠',
+                info: 'ℹ'
+            };
+            
+            const toast = document.createElement('div');
+            toast.className = `${colors[type]} text-white px-6 py-4 rounded-lg shadow-lg flex items-center space-x-3 animate-slide-in`;
+            toast.innerHTML = `
+                <span class="text-2xl">${icons[type]}</span>
+                <span class="font-medium">${message}</span>
+                <button onclick="this.parentElement.remove()" class="ml-4 text-white hover:text-gray-200">✕</button>
+            `;
+            
+            container.appendChild(toast);
+            
+            // Auto remove after 5 seconds
+            setTimeout(() => {
+                toast.classList.add('animate-slide-out');
+                setTimeout(() => toast.remove(), 300);
+            }, 5000);
+        }
+
+        const logoutButton = document.getElementById('logout-button');
+        const mobileLogoutButton = document.getElementById('mobile-logout-button');
+        const mobileMenuButton = document.getElementById('mobile-menu-button');
+        const mobileMenu = document.getElementById('mobile-menu');
+        const displayName = document.getElementById('display-name');
+        const userPhone = document.getElementById('user-phone');
+        const userAvatarInitial = document.getElementById('user-avatar-initial');
+        const nameInput = document.getElementById('name-input');
+        const addressInput = document.getElementById('address-input');
+        const pincodeInput = document.getElementById('pincode-input');
+        const phoneNumberDisplay = document.getElementById('phone-number-display');
+        const memberSinceDisplay = document.getElementById('member-since-display');
+        const saveProfileButton = document.getElementById('save-profile-button');
+
+        auth.onAuthStateChanged(user => {
+            if (user) {
+                const userRef = db.collection('users').doc(user.uid);
+                userRef.get().then(doc => {
+                    if (doc.exists) {
+                        const userData = doc.data();
+                        displayName.textContent = userData.name || 'New User';
+                        userPhone.textContent = user.phoneNumber;
+                        phoneNumberDisplay.textContent = user.phoneNumber;
+                        nameInput.value = userData.name || '';
+                        addressInput.value = userData.address || '';
+                        pincodeInput.value = userData.pincode || '';
+                        if (userData.name) {
+                            userAvatarInitial.textContent = userData.name.charAt(0).toUpperCase();
+                        } else {
+                            userAvatarInitial.textContent = '?';
+                        }
+                        if (userData.createdAt) {
+                            memberSinceDisplay.textContent = userData.createdAt.toDate().toLocaleDateString();
+                        }
+                    } else {
+                        // Should not happen for a logged in user, but handle it.
+                        window.location.href = 'login.html';
+                    }
+                });
+
+                // Input validation function
+                function validateInput(input, type) {
+                    let sanitized = input.trim();
+                    if (type === 'name') {
+                        sanitized = sanitized.replace(/[^a-zA-Z\s]/g, '');
+                        if (sanitized.length < 2) {
+                            return { valid: false, message: "Name must be at least 2 characters" };
+                        }
+                    }
+                    if (type === 'address') {
+                        sanitized = sanitized.replace(/<script>/gi, '');
+                        if (sanitized.length < 5) {
+                            return { valid: false, message: "Address is too short" };
+                        }
+                    }
+                    if (type === 'pincode') {
+                        sanitized = sanitized.replace(/[^0-9]/g, '');
+                        if (sanitized.length !== 6) {
+                            return { valid: false, message: "PIN code must be 6 digits" };
+                        }
+                    }
+                    return { valid: true, value: sanitized };
+                }
+
+                saveProfileButton.addEventListener('click', () => {
+                    // Validate Name
+                    const nameValidation = validateInput(nameInput.value, 'name');
+                    if (!nameValidation.valid) {
+                        showToast(nameValidation.message, 'error');
+                        return;
+                    }
+
+                    // Validate Address
+                    const addressValidation = validateInput(addressInput.value, 'address');
+                    if (!addressValidation.valid) {
+                        showToast(addressValidation.message, 'error');
+                        return;
+                    }
+
+                    // Validate Pincode
+                    const pincodeValidation = validateInput(pincodeInput.value, 'pincode');
+                    if (!pincodeValidation.valid) {
+                        showToast(pincodeValidation.message, 'error');
+                        return;
+                    }
+
+                    // All valid, get sanitized values
+                    const newName = nameValidation.value;
+                    const newAddress = addressValidation.value;
+                    const newPincode = pincodeValidation.value;
+
+                    userRef.update({
+                        name: newName,
+                        address: newAddress,
+                        pincode: newPincode
+                    })
+                        .then(() => {
+                            showToast('Profile updated successfully!', 'success');
+                            displayName.textContent = newName;
+                            userAvatarInitial.textContent = newName.charAt(0).toUpperCase();
+                        })
+                        .catch(error => {
+                            console.error('Error updating profile: ', error);
+                            showToast('Error updating profile.', 'error');
+                        });
+                });
+
+            } else {
+                window.location.href = 'login.html';
+            }
+        });
+
+        function handleLogout() {
+            auth.signOut().then(() => { window.location.href = 'index.html'; });
+        }
+
+        logoutButton.addEventListener('click', handleLogout);
+        mobileLogoutButton.addEventListener('click', handleLogout);
+
+        mobileMenuButton.addEventListener('click', () => {
+            mobileMenu.classList.toggle('hidden');
+        });
+    </script>
+</body>
+</html>
